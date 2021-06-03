@@ -1,10 +1,10 @@
 {
   "type": "Code",
-  "name": "TEMPLATE",
-  "modid": "template",
+  "name": "YEET",
+  "modid": "yeet",
   "version": "1.0.0",
-  "description": "A template project for Vintage Story modding.",
-  "website": "https://github.com/JapanHasRice/VSMod-TEMPLATE",
+  "description": "Chuck unwanted items really far away.",
+  "website": "https://github.com/JapanHasRice/VSMod-YEET",
   "authors": [ "JapanHasRice" ],
   "contributors": [],
   "dependencies": {
