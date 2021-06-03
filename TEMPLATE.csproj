@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+    <TargetGameVersion>1.15</TargetGameVersion>
+  </PropertyGroup>
+  <!-- <PropertyGroup>
+    <TargetFramework>net452</TargetFramework>
+    <TargetGameVersion>1.14</TargetGameVersion>
+  </PropertyGroup> -->
+  
+  <ItemGroup>
+    <Reference Include="VintagestoryAPI">
+      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/VintagestoryAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VSEssentials">
+      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Mods/VSEssentials.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="VSSurvivalMod">
+      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Mods/VSSurvivalMod.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Harmony">
+      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <None Include="resources/**">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <None Include="resources/**">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PackageRelease" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+    <ZipDirectory DestinationFile="bin/RELEASE/$(TargetName).zip" SourceDirectory="$(TargetDir)" Overwrite="false" />
+  </Target>
+
+  <Target Name="Package" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Debug'">
+    <ZipDirectory DestinationFile="bin/Debug/zip/DEBUG_$(TargetName).zip" SourceDirectory="$(TargetDir)" Overwrite="true" />
+  </Target>
+</Project>
