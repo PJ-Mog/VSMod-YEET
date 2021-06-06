@@ -12,6 +12,10 @@ namespace Yeet {
     public string YeetForceDescription = $"The force of the yeet. [Default: {DEFAULT_YEET_FORCE}, Minimum: {MIN_YEET_FORCE}, Maximum: none (but it gets crazy quickly...)]";
     public double YeetForce = DEFAULT_YEET_FORCE;
 
+    private const bool DEFAULT_MOUSE_YEET = true;
+    public string EnableMouseCursorItemYeetDescription = $"Whether the yeet action works for items held in the mouse slot. [Default: {DEFAULT_MOUSE_YEET}]";
+    public bool EnableMouseCursorItemYeet = DEFAULT_MOUSE_YEET;
+
 
     public string AudioSectionTitle = "=== Audio Settings ===";
 

@@ -54,7 +54,8 @@ namespace Yeet {
 
     private bool Yeet(ICoreClientAPI capi, EnumYeetType yeetType) {
       var invManager = capi.World.Player.InventoryManager;
-      return Yeet(capi, invManager.MouseItemSlot, yeetType) || Yeet(capi, invManager.ActiveHotbarSlot, yeetType);
+      return (Config.EnableMouseCursorItemYeet && Yeet(capi, invManager.MouseItemSlot, yeetType))
+             || Yeet(capi, invManager.ActiveHotbarSlot, yeetType);
     }
 
     private bool Yeet(ICoreClientAPI capi, ItemSlot slot, EnumYeetType yeetType) {
