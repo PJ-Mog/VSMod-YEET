@@ -3,7 +3,7 @@ using Vintagestory.API.MathTools;
 
 namespace Yeet {
   [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
-  public class YeetChannelPacket {
+  public class YeetAttemptedPacket {
     public EnumYeetType YeetType;
     public string InventoryID;
     public int SlotID;
