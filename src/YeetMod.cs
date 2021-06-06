@@ -88,6 +88,9 @@ namespace Yeet {
           break;
       }
       slot.MarkDirty();
+
+      sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/throw"), fromPlayer.Entity, randomizePitch: true, range: 10, volume: 10);
+      sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/strike"), fromPlayer.Entity, randomizePitch: true, range: 50, volume: 15);
       sapi.World.SpawnItemEntity(yeetedStack, packet.YeetedFromPos, packet.YeetedVelocity);
     }
 
