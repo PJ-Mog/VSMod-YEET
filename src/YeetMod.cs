@@ -71,6 +71,8 @@ namespace Yeet {
                                         radius * COS_PHI,
                                         radius * SIN_PHI * GameMath.FastCos(theta));
       capi.Network.GetChannel(YEET_CHANNEL_NAME).SendPacket(packet);
+
+      if (Config.ScreenShakeIntensity > 0f) { capi.World.SetCameraShake(Config.ScreenShakeIntensity); }
       return true;
     }
 

@@ -43,6 +43,15 @@ namespace Yeet {
     public float GruntAudibleRange = DEFAULT_GRUNT_RANGE;
 
 
+    public string VideoSectionTitle = "=== Video Settings ===";
+
+    private const float DEFAULT_SHAKE_INTENSITY = 0.5f;
+    private const float MIN_SHAKE_INTENSITY = 0;
+    private const float MAX_SHAKE_INTENSITY = 1;
+    public string ScreenShakeIntensityDescription = $"How much the screen shakes when you yeet. [Default: {DEFAULT_SHAKE_INTENSITY}, Minimum: {MIN_SHAKE_INTENSITY}, Maximum: {MAX_SHAKE_INTENSITY}, Reference: throwing a spear is 0.25]";
+    public float ScreenShakeIntensity = DEFAULT_SHAKE_INTENSITY;
+
+
     public static string filename = "YeetConfig.json";
     public static YeetConfig Load(ICoreAPI api) {
       YeetConfig config = null;
@@ -70,6 +79,8 @@ namespace Yeet {
 
       config.GruntVolume = GameMath.Clamp(config.GruntVolume, MIN_GRUNT_VOLUME, MAX_GRUNT_VOLUME);
       config.GruntAudibleRange = GameMath.Clamp(config.GruntAudibleRange, MIN_GRUNT_RANGE, MAX_GRUNT_RANGE);
+
+      config.ScreenShakeIntensity = GameMath.Clamp(config.ScreenShakeIntensity, MIN_SHAKE_INTENSITY, MAX_SHAKE_INTENSITY);
 
       Save(api, config);
       return config;
