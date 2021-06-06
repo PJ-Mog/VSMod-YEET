@@ -1,11 +1,47 @@
 using System;
 using Newtonsoft.Json;
 using Vintagestory.API.Common;
+using Vintagestory.API.MathTools;
 
 namespace Yeet {
   public class YeetConfig {
-    public string YeetForceDescription = "The force of the yeet. [Minimum: 0.5] (No maximum, but it gets crazy quickly...)";
-    public double YeetForce = 0.75;
+    public string PhysicsSectionTitle = "=== Gameplay Settings ===";
+
+    private const double DEFAULT_YEET_FORCE = 0.75;
+    private const double MIN_YEET_FORCE = 0.5;
+    public string YeetForceDescription = $"The force of the yeet. [Default: {DEFAULT_YEET_FORCE}, Minimum: {MIN_YEET_FORCE}, Maximum: none (but it gets crazy quickly...)]";
+    public double YeetForce = DEFAULT_YEET_FORCE;
+
+
+    public string AudioSectionTitle = "=== Audio Settings ===";
+
+    private const float DEFAULT_WOOSH_VOLUME = 10;
+    private const float MIN_WOOSH_VOLUME = 1;
+    private const float MAX_WOOSH_VOLUME = 20;
+    public string WooshVolumeDescription = $"Volume of the 'woosh' noise when an item is yeeted. [Default: {DEFAULT_WOOSH_VOLUME}, Minimum: {MIN_WOOSH_VOLUME}, Maximum: {MAX_WOOSH_VOLUME}]";
+    public float WooshVolume = DEFAULT_WOOSH_VOLUME;
+
+
+    private const float DEFAULT_WOOSH_RANGE = 15;
+    private const float MIN_WOOSH_RANGE = 1;
+    private const float MAX_WOOSH_RANGE = 50;
+    public string WooshAudibleRangeDescription = $"Furthest distance at which the 'woosh' noise can be heard. [Default: {DEFAULT_WOOSH_RANGE}, Minimum: {MIN_WOOSH_RANGE}, Maximum: {MAX_WOOSH_RANGE}]";
+    public float WooshAudibleRange = DEFAULT_WOOSH_RANGE;
+
+
+    private const float DEFAULT_GRUNT_VOLUME = 15;
+    private const float MIN_GRUNT_VOLUME = 1;
+    private const float MAX_GRUNT_VOLUME = 25;
+    public string GruntVolumeDescription = $"Volume of the player's grunting when yeeting. [Default: {DEFAULT_GRUNT_VOLUME}, Minimum: {MIN_GRUNT_VOLUME}, Maximum: {MAX_GRUNT_VOLUME}]";
+    public float GruntVolume = DEFAULT_GRUNT_VOLUME;
+
+
+    private const float DEFAULT_GRUNT_RANGE = 50;
+    private const float MIN_GRUNT_RANGE = 1;
+    private const float MAX_GRUNT_RANGE = 100;
+    public string GruntAudibleRangeDescription = $"Furthest distance at which the grunting of a yeeting player can be heard. [Default: {DEFAULT_GRUNT_RANGE}, Minimum: {MIN_GRUNT_RANGE}, Maximum: {MAX_GRUNT_RANGE}]";
+    public float GruntAudibleRange = DEFAULT_GRUNT_RANGE;
+
 
     public static string filename = "YeetConfig.json";
     public static YeetConfig Load(ICoreAPI api) {
@@ -27,7 +63,14 @@ namespace Yeet {
         config = new YeetConfig();
       }
 
-      config.YeetForce = Math.Max(0.5, config.YeetForce);
+      config.YeetForce = Math.Max(MIN_YEET_FORCE, config.YeetForce);
+
+      config.WooshVolume = GameMath.Clamp(config.WooshVolume, MIN_WOOSH_VOLUME, MAX_WOOSH_VOLUME);
+      config.WooshAudibleRange = GameMath.Clamp(config.WooshAudibleRange, MIN_WOOSH_RANGE, MAX_WOOSH_RANGE);
+
+      config.GruntVolume = GameMath.Clamp(config.GruntVolume, MIN_GRUNT_VOLUME, MAX_GRUNT_VOLUME);
+      config.GruntAudibleRange = GameMath.Clamp(config.GruntAudibleRange, MIN_GRUNT_RANGE, MAX_GRUNT_RANGE);
+
       Save(api, config);
       return config;
     }

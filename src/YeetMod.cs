@@ -10,6 +10,7 @@ namespace Yeet {
       get { return radius; }
       set { radius = YeetForce; }
     }
+    internal static YeetConfig Config;
     private const GlKeys DEFAULT_YEET_KEY = GlKeys.Y;
     private const string YEET_ONE_CODE = "yeetit";
     private const string YEET_ONE_DESC = "Hard throw item";
@@ -26,7 +27,8 @@ namespace Yeet {
     public override void Start(ICoreAPI api) {
       base.Start(api);
 
-      radius = YeetConfig.Load(api).YeetForce;
+      Config = YeetConfig.Load(api);
+      radius = Config.YeetForce;
 
       api.Network.RegisterChannel(YEET_CHANNEL_NAME).RegisterMessageType(typeof(YeetChannelPacket));
     }
@@ -89,8 +91,8 @@ namespace Yeet {
       }
       slot.MarkDirty();
 
-      sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/throw"), fromPlayer.Entity, randomizePitch: true, range: 10, volume: 10);
-      sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/strike"), fromPlayer.Entity, randomizePitch: true, range: 50, volume: 15);
+      sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/throw"), fromPlayer.Entity, randomizePitch: true, range: Config.WooshAudibleRange, volume: Config.WooshVolume);
+      sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/strike"), fromPlayer.Entity, randomizePitch: true, range: Config.GruntAudibleRange, volume: Config.GruntVolume);
       sapi.World.SpawnItemEntity(yeetedStack, packet.YeetedFromPos, packet.YeetedVelocity);
     }
 
