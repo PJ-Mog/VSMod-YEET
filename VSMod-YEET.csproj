@@ -26,9 +26,13 @@
       <Private>false</Private>
     </Reference>
     <Reference Include="protobuf-net">
-			<HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/protobuf-net.dll</HintPath>
-			<Private>false</Private>
-		</Reference>
+      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/protobuf-net.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
