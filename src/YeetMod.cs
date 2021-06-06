@@ -112,7 +112,7 @@ namespace Yeet {
       slot.MarkDirty();
 
       sapi.World.SpawnItemEntity(yeetedStack, packet.YeetedFromPos, packet.YeetedVelocity);
-      sapi.Network.GetChannel(YEET_CHANNEL_NAME).SendPacket(new YeetSuccessPacket());
+      sapi.Network.GetChannel(YEET_CHANNEL_NAME).SendPacket(new YeetSuccessPacket(), fromPlayer);
       PlaySounds(sapi, fromPlayer.Entity);
       fromPlayer.Entity.GetBehavior<EntityBehaviorHunger>().ConsumeSaturation(Config.SaturationCostPerYeet);
     }
