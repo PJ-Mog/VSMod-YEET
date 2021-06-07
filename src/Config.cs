@@ -81,6 +81,7 @@ namespace Yeet {
         config = new YeetConfig();
       }
 
+      config.SaturationCostPerYeet = Math.Max(MIN_SATURATION_COST, config.SaturationCostPerYeet);
       config.YeetForce = Math.Max(MIN_YEET_FORCE, config.YeetForce);
 
       config.WooshVolume = GameMath.Clamp(config.WooshVolume, MIN_WOOSH_VOLUME, MAX_WOOSH_VOLUME);
