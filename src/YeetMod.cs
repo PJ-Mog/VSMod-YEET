@@ -87,7 +87,8 @@ namespace Yeet {
       attemptPacket.InventoryID = slot.Inventory.InventoryID;
       attemptPacket.SlotID = slot.Inventory.GetSlotId(slot);
       attemptPacket.YeetedFromPos = playerEntity.Pos.XYZ.Add(0, playerEntity.LocalEyePos.Y, 0);
-      var theta = GameMath.PIHALF + capi.World.Player.CameraYaw; // angle (in radians) to direct the throw on the X-Z (ground) plane, with 0 Rad as north
+      var playerYaw = capi.World.Player.CameraMode == EnumCameraMode.Overhead ? playerEntity.BodyYaw : capi.World.Player.CameraYaw;
+      var theta = GameMath.PIHALF + playerYaw; // angle (in radians) to direct the throw on the X-Z (ground) plane, with 0 Rad as north
       attemptPacket.YeetedVelocity = new Vec3d(radius * SIN_PHI * GameMath.FastSin(theta),
                                         radius * COS_PHI,
                                         radius * SIN_PHI * GameMath.FastCos(theta));
