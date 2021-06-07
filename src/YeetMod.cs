@@ -40,7 +40,8 @@ namespace Yeet {
 
       api.Network.RegisterChannel(YEET_CHANNEL_NAME)
         .RegisterMessageType(typeof(YeetAttemptedPacket))
-        .RegisterMessageType(typeof(YeetSuccessPacket));
+        .RegisterMessageType(typeof(YeetSuccessPacket))
+        .RegisterMessageType(typeof(YeetAnimationPacket));
     }
 
     public override void StartClientSide(ICoreClientAPI capi) {
@@ -54,16 +55,21 @@ namespace Yeet {
       capi.Input.SetHotKeyHandler(YEET_ALL_CODE, (KeyCombination kc) => { return TryToYeet(capi, EnumYeetType.All); });
       capi.Input.SetHotKeyHandler(YEET_HALF_CODE, (KeyCombination kc) => { return TryToYeet(capi, EnumYeetType.Half); });
 
-      capi.Network.GetChannel(YEET_CHANNEL_NAME).SetMessageHandler<YeetSuccessPacket>((YeetSuccessPacket packet) => {
-        OnSuccessfulYeet(capi);
-      });
+      capi.Network.GetChannel(YEET_CHANNEL_NAME)
+        .SetMessageHandler<YeetSuccessPacket>((YeetSuccessPacket packet) => {
+          OnSuccessfulYeet(capi);
+        })
+        .SetMessageHandler<YeetAnimationPacket>((YeetAnimationPacket packet) => {
+          OnPlayerIsYeeting(capi, packet);
+        });
     }
 
     public override void StartServerSide(ICoreServerAPI sapi) {
       base.StartServerSide(sapi);
-      sapi.Network.GetChannel(YEET_CHANNEL_NAME).SetMessageHandler<YeetAttemptedPacket>((IServerPlayer fromPlayer, YeetAttemptedPacket packet) => {
-        YeetAttemptHandler(sapi, fromPlayer, packet);
-      });
+      sapi.Network.GetChannel(YEET_CHANNEL_NAME)
+        .SetMessageHandler<YeetAttemptedPacket>((IServerPlayer fromPlayer, YeetAttemptedPacket packet) => {
+          YeetAttemptHandler(sapi, fromPlayer, packet);
+        });
     }
 
     public bool TryToYeet(ICoreClientAPI capi, EnumYeetType yeetType) {
@@ -90,6 +96,8 @@ namespace Yeet {
     }
 
     private void YeetAttemptHandler(ICoreServerAPI sapi, IServerPlayer fromPlayer, YeetAttemptedPacket packet) {
+      OnBeforeYeetAttempt(sapi, fromPlayer);
+
       if (!HasEnoughSaturation(fromPlayer)) {
         fromPlayer.SendIngameError(YEET_ERROR_HUNGER, Lang.GetIfExists($"yeet:ingameerror-{YEET_ERROR_HUNGER}") ?? YEET_ERROR_HUNGER_TEXT);
         return;
@@ -112,18 +120,62 @@ namespace Yeet {
       slot.MarkDirty();
 
       sapi.World.SpawnItemEntity(yeetedStack, packet.YeetedFromPos, packet.YeetedVelocity);
-      sapi.Network.GetChannel(YEET_CHANNEL_NAME).SendPacket(new YeetSuccessPacket(), fromPlayer);
-      PlaySounds(sapi, fromPlayer.Entity);
+      OnSuccessfulYeet(sapi, fromPlayer);
+    }
+
+    private void OnBeforeYeetAttempt(ICoreServerAPI sapi, IServerPlayer fromPlayer) {
+      // TODO: begin holding player's position until yeet completes
+      fromPlayer.Entity.StartAnimation("aim");
+    }
+
+    private void OnSuccessfulYeet(ICoreServerAPI sapi, IServerPlayer fromPlayer) {
+      AnimateSuccessfulYeet(sapi, fromPlayer);
+      PlaySuccessfulYeetSounds(sapi, fromPlayer.Entity);
       fromPlayer.Entity.GetBehavior<EntityBehaviorHunger>().ConsumeSaturation(Config.SaturationCostPerYeet);
     }
 
-    private void PlaySounds(ICoreServerAPI sapi, Entity yeetingEntity) {
+    private void OnPlayerIsYeeting(ICoreClientAPI capi, YeetAnimationPacket packet) {
+      var yeetingEntity = capi.World.PlayerByUid(packet.YeeterUID).Entity;
+      foreach (var animInstruction in packet.AnimationList) {
+        if (animInstruction.Value) {
+          yeetingEntity.StartAnimation(animInstruction.Key);
+        }
+        else {
+          yeetingEntity.StopAnimation(animInstruction.Key);
+        }
+      }
+    }
+
+    private void AnimateSuccessfulYeet(ICoreServerAPI sapi, IServerPlayer yeeter) {
+      var animPacket = new YeetAnimationPacket(yeeter.PlayerUID);
+      animPacket.AnimationList.Add("aim", false);
+      animPacket.AnimationList.Add("throw", true);
+      animPacket.AnimationList.Add("sneakidle", true);
+      var channel = sapi.Network.GetChannel(YEET_CHANNEL_NAME);
+      var playersAround = sapi.World.GetPlayersAround(yeeter.Entity.Pos.AsBlockPos.ToVec3d(), 30, 30);
+      var serverPlayersAround = new IServerPlayer[playersAround.Length];
+      for (int i = 0; i < serverPlayersAround.Length; i++)
+      {
+        serverPlayersAround[i] = (IServerPlayer)playersAround[i];
+      }
+      channel.SendPacket(animPacket, serverPlayersAround);
+      channel.SendPacket(new YeetSuccessPacket(), yeeter);
+      sapi.World.RegisterCallback((float timePassed) => {
+        var cancelCrouch = new YeetAnimationPacket(yeeter.PlayerUID);
+        cancelCrouch.AnimationList.Add("sneakidle", false);
+        channel.SendPacket(cancelCrouch, serverPlayersAround);
+      }, 600);
+    }
+
+    private void PlaySuccessfulYeetSounds(ICoreServerAPI sapi, Entity yeetingEntity) {
       sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/strike"), yeetingEntity, randomizePitch: true, range: Config.GruntAudibleRange, volume: Config.GruntVolume);
       sapi.World.PlaySoundAt(new AssetLocation("game:sounds/player/throw"), yeetingEntity, randomizePitch: true, range: Config.WooshAudibleRange, volume: Config.WooshVolume);
     }
 
     private void OnSuccessfulYeet(ICoreClientAPI capi) {
-      if (Config.ScreenShakeIntensity > 0f) { capi.World.SetCameraShake(Config.ScreenShakeIntensity); }
+      if (capi.World.Player.CameraMode == EnumCameraMode.FirstPerson && Config.ScreenShakeIntensity > 0f) {
+        capi.World.SetCameraShake(Config.ScreenShakeIntensity);
+      }
     }
 
     private bool HasEnoughSaturation(IServerPlayer player) {
