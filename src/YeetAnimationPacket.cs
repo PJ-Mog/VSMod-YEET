@@ -13,5 +13,10 @@ namespace Yeet {
     }
 
     public YeetAnimationPacket() {}
+
+    public YeetAnimationPacket AddAnimation(string animCode, bool shouldPlay) {
+      this.AnimationList.Add(animCode, shouldPlay);
+      return this;
+    }
   }
 }
