@@ -6,7 +6,7 @@
       "type": "clr",
       "request": "launch",
       "preLaunchTask": "Build (Debug)",
-      "program": "${env:VINTAGE_STORY}/1.15/Vintagestory.exe",
+      "program": "${env:VINTAGE_STORY_DEV}/1.15/Vintagestory.exe",
       "args": [
         "--playStyle" , "preset-surviveandbuild",
         "--openWorld" , "modding test world",
@@ -20,7 +20,7 @@
       "type": "clr",
       "request": "launch",
       "preLaunchTask": "Build (Debug)",
-      "program": "${env:VINTAGE_STORY}/1.14/Vintagestory.exe",
+      "program": "${env:VINTAGE_STORY_DEV}/1.14/Vintagestory.exe",
       "args": [
         "--playStyle" , "preset-surviveandbuild",
         "--openWorld" , "modding test world",

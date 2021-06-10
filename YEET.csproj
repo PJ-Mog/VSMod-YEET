@@ -1,47 +1,47 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
-    <TargetGameVersion>1.15</TargetGameVersion>
-  </PropertyGroup>
-  <!-- <PropertyGroup>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <TargetGameVersion>1.14</TargetGameVersion>
-  </PropertyGroup> -->
-  
+    <EnvironmentStyle>Rice</EnvironmentStyle>
+    <!-- <EnvironmentStyle>Copygirl</EnvironmentStyle> -->
+    <VSPath Condition="'$(EnvironmentStyle)' == 'Copygirl'">$(VINTAGE_STORY)</VSPath>
+    <VSPath Condition="'$(EnvironmentStyle)' == 'Rice'">$(VINTAGE_STORY_DEV)/$(TargetGameVersion)</VSPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="VintagestoryAPI">
-      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/VintagestoryAPI.dll</HintPath>
+      <HintPath>$(VSPath)/VintagestoryAPI.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VSEssentials">
-      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Mods/VSEssentials.dll</HintPath>
+      <HintPath>$(VSPath)/Mods/VSEssentials.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="VSSurvivalMod">
-      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Mods/VSSurvivalMod.dll</HintPath>
+      <HintPath>$(VSPath)/Mods/VSSurvivalMod.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Harmony">
-      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/0Harmony.dll</HintPath>
+      <HintPath>$(VSPath)/Lib/0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="protobuf-net">
-      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/protobuf-net.dll</HintPath>
+      <HintPath>$(VSPath)/Lib/protobuf-net.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>$(VINTAGE_STORY)/$(TargetGameVersion)/Lib/Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(VSPath)/Lib/Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <None Include="resources/**">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
+
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <None Include="resources/**">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
@@ -50,7 +50,7 @@
   </ItemGroup>
 
   <Target Name="PackageRelease" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
-    <ZipDirectory DestinationFile="bin/RELEASE/$(TargetName).zip" SourceDirectory="$(TargetDir)" Overwrite="false" />
+    <ZipDirectory DestinationFile="bin/RELEASE/$(TargetName)_for_$(TargetGameVersion).rc.zip" SourceDirectory="$(TargetDir)" Overwrite="false" />
   </Target>
 
   <Target Name="Package" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Debug'">

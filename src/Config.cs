@@ -12,7 +12,7 @@ namespace Yeet {
     public string SaturationCostPerYeetDescription = $"The amount of satiety lost when yeeting. [Default: {DEFAULT_SATURATION_COST}, Minimum: {MIN_SATURATION_COST}]";
     public float SaturationCostPerYeet = DEFAULT_SATURATION_COST;
 
-    private const double DEFAULT_YEET_FORCE = 0.75;
+    private const double DEFAULT_YEET_FORCE = 0.85;
     private const double MIN_YEET_FORCE = 0.5;
     public string YeetForceDescription = $"The force of the yeet. [Default: {DEFAULT_YEET_FORCE}, Minimum: {MIN_YEET_FORCE}, Maximum: none (but it gets crazy quickly...)]";
     public double YeetForce = DEFAULT_YEET_FORCE;
@@ -61,23 +61,23 @@ namespace Yeet {
     public float ScreenShakeIntensity = DEFAULT_SHAKE_INTENSITY;
 
 
-    public static string filename = "YeetConfig.json";
+    public const string filename = "YeetConfig.json";
     public static YeetConfig Load(ICoreAPI api) {
       YeetConfig config = null;
       try {
         config = api.LoadModConfig<YeetConfig>(filename);
       }
       catch (JsonReaderException e) {
-        api.Logger.Error($"[YeetMod] Unable to parse config JSON. Correct syntax errors and retry, or delete {filename} and load the world again to generate a new configuration file with default settings.");
+        api.Logger.Error("[YeetMod] Unable to parse config JSON. Correct syntax errors and retry, or delete {0} and load the world again to generate a new configuration file with default settings.", filename);
         throw e;
       }
       catch (Exception e) {
-        api.Logger.Error($"[YeetMod] I don't know what happened. Delete {filename} in the config folder and try again.");
+        api.Logger.Error("[YeetMod] I don't know what happened. Delete {0} in the config folder and try again.", filename);
         throw e;
       }
 
       if (config == null) {
-        api.Logger.Notification($"[YeetMod] Configuration file not found. Generating ${filename} with default settings.");
+        api.Logger.Notification("[YeetMod] Configuration file not found. Generating {0} with default settings.", filename);
         config = new YeetConfig();
       }
 
