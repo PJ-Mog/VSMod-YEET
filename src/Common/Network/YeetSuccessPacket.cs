@@ -1,6 +1,6 @@
 using ProtoBuf;
 
-namespace Yeet {
+namespace Yeet.Common.Network {
   [ProtoContract(ImplicitFields = ImplicitFields.AllPublic)]
   public class YeetSuccessPacket {
   }

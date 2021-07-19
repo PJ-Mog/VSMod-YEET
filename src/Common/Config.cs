@@ -3,16 +3,16 @@ using Newtonsoft.Json;
 using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 
-namespace Yeet {
+namespace Yeet.Common {
   public class YeetConfig {
     public string PhysicsSectionTitle = "=== Gameplay Settings ===";
 
-    private const float DEFAULT_SATURATION_COST = 20;
+    private const float DEFAULT_SATURATION_COST = 5;
     private const float MIN_SATURATION_COST = 0;
     public string SaturationCostPerYeetDescription = $"The amount of satiety lost when yeeting. [Default: {DEFAULT_SATURATION_COST}, Minimum: {MIN_SATURATION_COST}]";
     public float SaturationCostPerYeet = DEFAULT_SATURATION_COST;
 
-    private const double DEFAULT_YEET_FORCE = 0.85;
+    private const double DEFAULT_YEET_FORCE = 0.9;
     private const double MIN_YEET_FORCE = 0.5;
     public string YeetForceDescription = $"The force of the yeet. [Default: {DEFAULT_YEET_FORCE}, Minimum: {MIN_YEET_FORCE}, Maximum: none (but it gets crazy quickly...)]";
     public double YeetForce = DEFAULT_YEET_FORCE;
