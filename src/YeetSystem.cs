@@ -34,13 +34,13 @@ namespace Yeet {
       
       Config = YeetConfig.Load(api);
       Error = new ErrorManager(this);
-      Animation = new Yeet.Common.AnimationManager(this);
     }
 
     public override void StartClientSide(ICoreClientAPI api) {
       base.StartClientSide(api);
 
       ClientAPI = api;
+      Animation = new Yeet.Common.AnimationManager(this);
       YeetOneInputHandler = new YeetOneInputHandler(this);
       YeetAllInputHandler = new YeetAllInputHandler(this);
       YeetHalfInputHandler = new YeetHalfInputHandler(this);
@@ -50,6 +50,7 @@ namespace Yeet {
       base.StartServerSide(api);
 
       ServerAPI = api;
+      Animation = new Yeet.Common.AnimationManager(this);
       YeetHandler = new YeetHandler(this);
       Sound = new SoundManager(this);
     }
