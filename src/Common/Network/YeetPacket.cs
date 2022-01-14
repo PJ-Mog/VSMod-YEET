@@ -13,6 +13,8 @@ namespace Yeet.Common.Network {
 
     private YeetPacket() {}
 
+    public bool ShouldSerializeSlotId() => true;
+
     public YeetPacket(IClientPlayer player, EnumYeetType yeetType, EnumYeetSlotType yeetSlot, double yeetForce) {
       YeetType = yeetType;
       YeetSlotType = yeetSlot;
@@ -29,5 +31,6 @@ namespace Yeet.Common.Network {
                                  yeetForce * Constants.COS_PHI,
                                  yeetForce * Constants.SIN_PHI * GameMath.FastCos(theta));
     }
+
   }
 }
