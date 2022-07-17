@@ -3,11 +3,8 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 namespace Yeet.Client {
-  public abstract class YeetInputHandler {
+  public class YeetInputHandler {
     protected YeetSystem System;
-
-    protected abstract EnumYeetType YeetType { get; }
-    protected abstract string HotkeyCode { get; }
     protected IClientPlayer Player => System.ClientAPI.World.Player;
     protected bool ShouldTryMouseCursorSlot => System.Config.EnableMouseCursorItemYeet;
     protected float SaturationRequired => System.Config.SaturationCostPerYeet;
@@ -17,20 +14,35 @@ namespace Yeet.Client {
       if (system.Side != EnumAppSide.Client) { return; };
       System = system;
 
-      RegisterHotkey();
-      System.ClientAPI.Input.SetHotKeyHandler(HotkeyCode, OnTryToYeet);
+      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_ONE_CODE, Constants.YEET_ONE_DESC, Constants.DEFAULT_YEET_KEY);
+      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_ONE_CODE, OnHotkeyYeetOne);
+
+      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_HALF_CODE, Constants.YEET_HALF_DESC, Constants.DEFAULT_YEET_KEY, shiftPressed: true, ctrlPressed: true);
+      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_HALF_CODE, OnHotkeyYeetHalf);
+
+      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_ALL_CODE, Constants.YEET_ALL_DESC, Constants.DEFAULT_YEET_KEY, ctrlPressed: true);
+      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_ALL_CODE, OnHotkeyYeetAll);
     }
 
-    protected abstract void RegisterHotkey();
+    private bool OnHotkeyYeetOne(KeyCombination kc) {
+      return TryToYeet(EnumYeetType.One);
+    }
 
-    private bool OnTryToYeet(KeyCombination kc) {
+    private bool OnHotkeyYeetHalf(KeyCombination kc) {
+      return TryToYeet(EnumYeetType.Half);
+    }
+
+    private bool OnHotkeyYeetAll(KeyCombination kc) {
+      return TryToYeet(EnumYeetType.All);
+    }
+
+    private bool TryToYeet(EnumYeetType yeetType) {
       if (CanYeet(out EnumYeetSlotType yeetSlot, out string errorCode)) {
-        System.MessageManager.RequestYeet(Player, YeetType, yeetSlot, YeetForce);
+        System.MessageManager.RequestYeet(Player, yeetType, yeetSlot, YeetForce);
+        return true;
       }
-      else {
-        System.Event.StartYeetFailedToStart(errorCode);
-      }
-      return true;
+      System.Event.StartYeetFailedToStart(errorCode);
+      return false;
     }
 
     private bool CanYeet(out EnumYeetSlotType yeetSlot, out string errorCode) {

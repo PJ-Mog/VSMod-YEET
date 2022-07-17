@@ -17,9 +17,7 @@ namespace Yeet {
 
     public ICoreClientAPI ClientAPI => Api as ICoreClientAPI;
     public IClientNetworkChannel ClientChannel => ClientAPI?.Network?.GetChannel(Constants.MOD_ID);
-    public YeetInputHandler YeetOneInputHandler;
-    public YeetInputHandler YeetAllInputHandler;
-    public YeetInputHandler YeetHalfInputHandler;
+    public YeetInputHandler YeetInputHandler;
 
     public ICoreServerAPI ServerAPI => Api as ICoreServerAPI;
     public IServerNetworkChannel ServerChannel => ServerAPI?.Network?.GetChannel(Constants.MOD_ID);
@@ -42,9 +40,7 @@ namespace Yeet {
 
       Error = new ErrorManager(this);
 
-      YeetOneInputHandler = new YeetOneInputHandler(this);
-      YeetAllInputHandler = new YeetAllInputHandler(this);
-      YeetHalfInputHandler = new YeetHalfInputHandler(this);
+      YeetInputHandler = new YeetInputHandler(this);
     }
 
     public override void StartServerSide(ICoreServerAPI api) {

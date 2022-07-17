@@ -8,7 +8,7 @@
   "authors": [ "JapanHasRice" ],
   "contributors": [],
   "dependencies": {
-    "game": "1.17.0",
+    "game": "1.17.0-pre.4",
     "survival": ""
   },
   "side": "Universal",
