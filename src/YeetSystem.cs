@@ -12,14 +12,16 @@ namespace Yeet {
     public EnumAppSide Side => Api.Side;
     public YeetConfig Config { get; private set; }
     public ErrorManager Error { get; private set; }
+    public EventApi Event { get; private set; } = new EventApi();
+    public MessageManager MessageManager { get; private set; }
 
-    public ICoreClientAPI ClientAPI { get; private set; }
+    public ICoreClientAPI ClientAPI => Api as ICoreClientAPI;
     public IClientNetworkChannel ClientChannel => ClientAPI?.Network?.GetChannel(Constants.MOD_ID);
     public YeetInputHandler YeetOneInputHandler;
     public YeetInputHandler YeetAllInputHandler;
     public YeetInputHandler YeetHalfInputHandler;
 
-    public ICoreServerAPI ServerAPI { get; private set; }
+    public ICoreServerAPI ServerAPI => Api as ICoreServerAPI;
     public IServerNetworkChannel ServerChannel => ServerAPI?.Network?.GetChannel(Constants.MOD_ID);
     public YeetHandler YeetHandler;
     public Yeet.Common.AnimationManager Animation;
@@ -28,19 +30,18 @@ namespace Yeet {
     public override void Start(ICoreAPI api) {
       base.Start(api);
       Api = api;
-      api.Network.RegisterChannel(Constants.MOD_ID)
-        .RegisterMessageType(typeof(YeetPacket))
-        .RegisterMessageType(typeof(YeetSuccessPacket));
       
       Config = YeetConfig.Load(api);
-      Error = new ErrorManager(this);
+
+      MessageManager = new MessageManager(this);
+      Animation = new Yeet.Common.AnimationManager(this);
     }
 
     public override void StartClientSide(ICoreClientAPI api) {
       base.StartClientSide(api);
 
-      ClientAPI = api;
-      Animation = new Yeet.Common.AnimationManager(this);
+      Error = new ErrorManager(this);
+
       YeetOneInputHandler = new YeetOneInputHandler(this);
       YeetAllInputHandler = new YeetAllInputHandler(this);
       YeetHalfInputHandler = new YeetHalfInputHandler(this);
@@ -49,8 +50,6 @@ namespace Yeet {
     public override void StartServerSide(ICoreServerAPI api) {
       base.StartServerSide(api);
 
-      ServerAPI = api;
-      Animation = new Yeet.Common.AnimationManager(this);
       YeetHandler = new YeetHandler(this);
       Sound = new SoundManager(this);
     }
