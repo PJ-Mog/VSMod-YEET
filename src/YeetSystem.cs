@@ -28,6 +28,8 @@ namespace Yeet {
     public override void Start(ICoreAPI api) {
       base.Start(api);
       Api = api;
+
+      Api.RegisterEntity("EntityYeetedItem", typeof(EntityYeetedItem));
       
       Config = YeetConfig.Load(api);
 

@@ -1,0 +1,26 @@
+{
+  "code": "yeeteditem",
+  "class": "EntityYeetedItem",
+  "hitboxSize": { "x": 0.5, "y": 0.25 },
+  "client": {
+    "renderer": "Item",
+    "behaviors": [
+      { "code": "passivephysics",
+        "airDragFactor": 0.25,
+        "gravityFactor": 0.75
+      },
+      { "code": "interpolateposition" },
+      { "code": "floatupwhenstuck" }
+    ]
+  },
+  "server": {
+    "behaviors": [
+      { "code": "passivephysics",
+        "airDragFactor": 0.25,
+        "gravityFactor": 0.75
+      },
+      { "code": "despawn", "minSeconds": 600 },
+      { "code": "floatupwhenstuck" }
+    ]
+  }
+}
