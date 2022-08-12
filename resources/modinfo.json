@@ -2,13 +2,13 @@
   "type": "Code",
   "name": "YEET",
   "modid": "yeet",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Chuck unwanted items really far away.",
   "website": "https://github.com/PJ-Mog/VSMod-YEET",
   "authors": [ "JapanHasRice" ],
   "contributors": [],
   "dependencies": {
-    "game": "1.16.0",
+    "game": "1.17.0-pre.4",
     "survival": ""
   },
   "side": "Universal",

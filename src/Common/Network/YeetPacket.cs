@@ -25,8 +25,8 @@ namespace Yeet.Common.Network {
 
       YeetedFromPos = player.Entity.Pos.XYZ.Add(0, player.Entity.LocalEyePos.Y, 0);
       
-      var playerYaw = player.CameraMode == EnumCameraMode.Overhead ? player.Entity.BodyYaw : player.CameraYaw;
-      var theta = GameMath.PIHALF + playerYaw; // angle (in radians) to direct the throw on the X-Z (ground) plane, with 0 Rad as north
+      var throwYaw = player.CameraMode == EnumCameraMode.Overhead ? player.Entity.BodyYaw : player.Entity.Pos.Yaw;
+      var theta = GameMath.PIHALF + throwYaw; // angle (in radians) to direct the throw on the X-Z (ground) plane, with 0 Rad as north
       YeetedVelocity = new Vec3d(yeetForce * Constants.SIN_PHI * GameMath.FastSin(theta),
                                  yeetForce * Constants.COS_PHI,
                                  yeetForce * Constants.SIN_PHI * GameMath.FastCos(theta));

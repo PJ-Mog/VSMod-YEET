@@ -1,48 +1,48 @@
 using Yeet.Common;
-using Yeet.Common.Network;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 
 namespace Yeet.Client {
-  public abstract class YeetInputHandler {
+  public class YeetInputHandler {
     protected YeetSystem System;
-
-    protected abstract EnumYeetType YeetType { get; }
-    protected abstract string HotkeyCode { get; }
     protected IClientPlayer Player => System.ClientAPI.World.Player;
-    protected bool ShouldTryMouseCursorSlot = Constants.DEFAULT_MOUSE_YEET;
-    protected float SaturationRequired = Constants.DEFAULT_SATURATION_COST;
-    protected double YeetForce = Constants.DEFAULT_YEET_FORCE;
+    protected bool ShouldTryMouseCursorSlot => System.Config.EnableMouseCursorItemYeet;
+    protected float SaturationRequired => System.Config.SaturationCostPerYeet;
+    protected double YeetForce => System.Config.YeetForce;
 
     public YeetInputHandler(YeetSystem system) {
       if (system.Side != EnumAppSide.Client) { return; };
       System = system;
 
-      RegisterHotkey();
-      System.ClientAPI.Input.SetHotKeyHandler(HotkeyCode, OnTryToYeet);
+      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_ONE_CODE, Constants.YEET_ONE_DESC, Constants.DEFAULT_YEET_KEY);
+      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_ONE_CODE, OnHotkeyYeetOne);
 
-      if (System.Config?.EnableMouseCursorItemYeet != null) {
-        ShouldTryMouseCursorSlot = System.Config.EnableMouseCursorItemYeet;
-      }
-      if (System.Config?.SaturationCostPerYeet != null) {
-        SaturationRequired = System.Config.SaturationCostPerYeet;
-      }
-      if (System.Config?.YeetForce != null) {
-        YeetForce = System.Config.YeetForce;
-      }
+      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_HALF_CODE, Constants.YEET_HALF_DESC, Constants.DEFAULT_YEET_KEY, shiftPressed: true, ctrlPressed: true);
+      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_HALF_CODE, OnHotkeyYeetHalf);
+
+      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_ALL_CODE, Constants.YEET_ALL_DESC, Constants.DEFAULT_YEET_KEY, ctrlPressed: true);
+      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_ALL_CODE, OnHotkeyYeetAll);
     }
 
-    protected abstract void RegisterHotkey();
+    private bool OnHotkeyYeetOne(KeyCombination kc) {
+      return TryToYeet(EnumYeetType.One);
+    }
 
-    private bool OnTryToYeet(KeyCombination kc) {
+    private bool OnHotkeyYeetHalf(KeyCombination kc) {
+      return TryToYeet(EnumYeetType.Half);
+    }
+
+    private bool OnHotkeyYeetAll(KeyCombination kc) {
+      return TryToYeet(EnumYeetType.All);
+    }
+
+    private bool TryToYeet(EnumYeetType yeetType) {
       if (CanYeet(out EnumYeetSlotType yeetSlot, out string errorCode)) {
-        var packet = new YeetPacket(Player, YeetType, yeetSlot, YeetForce);
-        System.ClientChannel.SendPacket(packet);
+        System.MessageManager.RequestYeet(Player, yeetType, yeetSlot, YeetForce);
+        return true;
       }
-      else {
-        System.Error.TriggerFromClient(errorCode);
-      }
-      return true;
+      System.Event.StartYeetFailedToStart(errorCode);
+      return false;
     }
 
     private bool CanYeet(out EnumYeetSlotType yeetSlot, out string errorCode) {

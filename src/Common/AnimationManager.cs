@@ -9,50 +9,51 @@ namespace Yeet.Common {
 
     public AnimationManager(YeetSystem system) {
       System = system;
-      if (System.Side == EnumAppSide.Client) {
-        System.ClientChannel.SetMessageHandler<YeetSuccessPacket>(OnYeetSuccessPacket);
+
+      System.Event.ClientRequestedYeet += OnClientRequestedYeet;
+      System.Event.YeetRequestReceived += OnYeetRequestReceived;
+      System.Event.YeetCanceled += OnYeetCanceled;
+      System.Event.ItemYeeted += OnItemYeeted;
+    }
+
+    private void OnClientRequestedYeet(IClientPlayer yeeter, EnumYeetType type, EnumYeetSlotType slot, double force) {
+      StartWindup(yeeter.Entity);
+    }
+
+    private void OnYeetRequestReceived(IServerPlayer yeeter, YeetPacket yeetData) {
+      StartWindup(yeeter.Entity);
+    }
+
+    private void OnYeetCanceled(IPlayer yeeter, string errorCode) {
+      StopWindup(yeeter.Entity);
+    }
+
+    private void OnItemYeeted(IPlayer yeeter) {
+      ShakeScreen();
+      StopWindup(yeeter.Entity);
+      StrongYeet(yeeter.Entity);
+    }
+
+    public void ShakeScreen() {
+      if (System.Side == EnumAppSide.Client
+          && System.Config.ScreenShakeIntensity > 0f
+          && System.ClientAPI.World.Player.CameraMode == EnumCameraMode.FirstPerson) {
+        System.ClientAPI.World.SetCameraShake(System.Config.ScreenShakeIntensity);
       }
     }
 
-    private void OnYeetSuccessPacket(YeetSuccessPacket packet) {
-      ShakeScreen(System.ClientAPI.World.Player);
+    public void StartWindup(EntityPlayer yeeter) {
+      yeeter.StartAnimation("aim");
     }
 
-    public AnimationManager ShakeScreen(IPlayer player) {
-      if (System.Side == EnumAppSide.Client) {
-        if (System.Config.ScreenShakeIntensity > 0f && (player as IClientPlayer)?.CameraMode == EnumCameraMode.FirstPerson) {
-          System.ClientAPI.World.SetCameraShake(System.Config.ScreenShakeIntensity);
-        }
-      }
-      else {
-        var serverPlayer = player as IServerPlayer;
-        if (System.Config.ScreenShakeIntensity > 0f && serverPlayer != null) {
-          System.ServerChannel.SendPacket(new YeetSuccessPacket(), serverPlayer);
-        }
-      }
-      return this;
+    public void StopWindup(EntityPlayer yeeter) {
+      yeeter.StopAnimation("aim");
     }
 
-    public AnimationManager StartWindup(IServerPlayer yeeter) {
-      yeeter.Entity.StartAnimation("aim");
-      return this;
-    }
-
-    public AnimationManager StopWindup(IServerPlayer yeeter) {
-      yeeter.Entity.StopAnimation("aim");
-      return this;
-    }
-
-    public AnimationManager StrongYeet(IServerPlayer yeeter) {
-      yeeter.Entity.StartAnimation("throw"); // resets automatically
-      yeeter.Entity.StartAnimation("sneakidle");
-      System.ServerAPI.World.RegisterCallback((float dt) => { yeeter.Entity.StopAnimation("sneakidle"); }, 600);
-      return this;
-    }
-
-    public AnimationManager WeakYeet(IServerPlayer yeeter) {
-      // TODO
-      return this;
+    public void StrongYeet(EntityPlayer yeeter) {
+      yeeter.StartAnimation("throw"); // resets automatically
+      yeeter.StartAnimation("sneakidle");
+      System.Api.World.RegisterCallback((float dt) => { yeeter.StopAnimation("sneakidle"); }, 600);
     }
   }
 }

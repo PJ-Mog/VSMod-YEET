@@ -13,12 +13,11 @@ namespace Yeet.Server {
         return;
       }
       System = system;
-      System.ServerChannel.SetMessageHandler<YeetPacket>(OnYeetPacket);
+
+      System.Event.YeetRequestReceived += OnYeetRequestReceived;
     }
 
-    private void OnYeetPacket(IServerPlayer player, YeetPacket packet) {
-      OnBeforeYeet(player);
-
+    private void OnYeetRequestReceived(IServerPlayer player, YeetPacket packet) {
       ItemSlot slot;
       switch (packet.YeetSlotType) {
         case EnumYeetSlotType.Mouse:
@@ -31,8 +30,7 @@ namespace Yeet.Server {
       }
 
       if (slot == null || slot.Empty) {
-        System.Error.TriggerFromServer(System.Error.GetErrorText(Constants.ERROR_NOTHING_TO_YEET), player);
-        OnFailedYeet(player);
+        System.Event.StartYeetCanceled(player, Constants.ERROR_NOTHING_TO_YEET);
         return;
       }
 
@@ -53,23 +51,9 @@ namespace Yeet.Server {
       System.ServerAPI.World.SpawnItemEntity(stackToYeet, packet.YeetedFromPos, packet.YeetedVelocity);
       slot.MarkDirty();
 
-      OnSuccessfulYeet(player);
-    }
+      player.Entity.GetBehavior<EntityBehaviorHunger>()?.ConsumeSaturation(System.Config.SaturationCostPerYeet);
 
-    private void OnBeforeYeet(IServerPlayer yeeter) {
-      System.Animation?.StartWindup(yeeter);
-    }
-
-    private void OnFailedYeet(IServerPlayer yeeter) {
-      System.Animation?.StopWindup(yeeter);
-    }
-
-    private void OnSuccessfulYeet(IServerPlayer yeeter) {
-      yeeter.Entity.GetBehavior<EntityBehaviorHunger>()?.ConsumeSaturation(System.Config.SaturationCostPerYeet);
-      System.Animation?.ShakeScreen(yeeter)
-                       .StopWindup(yeeter)
-                       .StrongYeet(yeeter);
-      System.Sound?.StrongYeet(yeeter);
+      System.Event.StartItemYeeted(player);
     }
 
     private int GetHalfStackSizeRoundedUp(ItemSlot slot) {
