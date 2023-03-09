@@ -9,10 +9,14 @@
       "program": "${env:VINTAGE_STORY_DEV}/1.18/Vintagestory.exe",
       "args": [
         "--playStyle" , "preset-surviveandbuild",
-        "--openWorld" , "modding test world 1.18",
-        "--dataPath", "${env:VINTAGE_STORY_DEV}/../VintagestoryDevData",
+        "--openWorld" , "modding test world ${TargetGameVersion} ${workspaceFolderBasename}",
+        "--dataPath", "${env:VINTAGE_STORY_DEV}/../VintagestoryDevDataUS",
         "--addModPath", "${workspaceFolder}/bin/Debug/zip"
       ],
+      "env": {
+        "TEXTURE_DEBUG_DISPOSE": "1",
+        "VAO_DEBUG_DISPOSE": "1"
+      },
       "console": "internalConsole",
       "internalConsoleOptions": "openOnSessionStart"
     },
@@ -24,9 +28,14 @@
       "program": "${env:VINTAGE_STORY_DEV}/1.17/Vintagestory.exe",
       "args": [
         "--playStyle" , "preset-surviveandbuild",
-        "--openWorld" , "modding test world 1.17",
+        "--openWorld" , "modding test world ${TargetGameVersion} ${workspaceFolderBasename}",
+        "--dataPath", "${env:VINTAGE_STORY_DEV}/../VintagestoryDevDataUS",
         "--addModPath", "${workspaceFolder}/bin/Debug/zip"
       ],
+      "env": {
+        "TEXTURE_DEBUG_DISPOSE": "1",
+        "VAO_DEBUG_DISPOSE": "1"
+      },
       "console": "internalConsole",
       "internalConsoleOptions": "openOnSessionStart"
     },
@@ -41,6 +50,10 @@
         "--openWorld" , "modding test world cpg",
         "--addModPath", "${workspaceFolder}/bin/Debug/zip"
       ],
+      "env": {
+        "TEXTURE_DEBUG_DISPOSE": "1",
+        "VAO_DEBUG_DISPOSE": "1"
+      },
       "console": "internalConsole",
       "internalConsoleOptions": "openOnSessionStart"
     }
