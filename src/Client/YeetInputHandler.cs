@@ -6,22 +6,57 @@ namespace Yeet.Client {
   public class YeetInputHandler {
     protected YeetSystem System;
     protected IClientPlayer Player => System.ClientAPI.World.Player;
-    protected bool ShouldTryMouseCursorSlot => System.Config.EnableMouseCursorItemYeet;
-    protected float SaturationRequired => System.Config.SaturationCostPerYeet;
-    protected double YeetForce => System.Config.YeetForce;
+    protected bool ShouldTryMouseCursorSlot { get; set; }
+    protected float SaturationRequired { get; set; }
+    protected double YeetForce { get; set; }
 
     public YeetInputHandler(YeetSystem system) {
       if (system.Side != EnumAppSide.Client) { return; };
       System = system;
 
-      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_ONE_CODE, Constants.YEET_ONE_DESC, Constants.DEFAULT_YEET_KEY);
-      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_ONE_CODE, OnHotkeyYeetOne);
+      LoadServerSettings(system.Api);
+      LoadClientSettings(system.Api);
+      RegisterHotKeys(system.ClientAPI.Input, system.Event);
+    }
 
-      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_HALF_CODE, Constants.YEET_HALF_DESC, Constants.DEFAULT_YEET_KEY, shiftPressed: true, ctrlPressed: true);
-      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_HALF_CODE, OnHotkeyYeetHalf);
+    protected virtual void LoadServerSettings(ICoreAPI api) {
+      var configSystem = api.ModLoader.GetModSystem<YeetConfigurationSystem>();
+      if (configSystem == null) {
+        api.Logger.Error("[{0}] {1} was not loaded. Using defaults.", nameof(YeetInputHandler), nameof(YeetConfigurationSystem));
+        LoadServerSettings(new ServerConfig());
+        return;
+      }
 
-      System.ClientAPI.Input.RegisterHotKey(Constants.YEET_ALL_CODE, Constants.YEET_ALL_DESC, Constants.DEFAULT_YEET_KEY, ctrlPressed: true);
-      System.ClientAPI.Input.SetHotKeyHandler(Constants.YEET_ALL_CODE, OnHotkeyYeetAll);
+      configSystem.ServerSettingsReceived += LoadServerSettings;
+      if (configSystem.ServerSettings != null) {
+        LoadServerSettings(configSystem.ServerSettings);
+      }
+    }
+
+    protected virtual void LoadServerSettings(ServerConfig serverSettings) {
+      SaturationRequired = serverSettings.SaturationCostPerYeet.Value;
+      YeetForce = serverSettings.YeetForce.Value;
+    }
+
+    protected virtual void LoadClientSettings(ICoreAPI api) {
+      var clientSettings = api.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ClientSettings;
+      if (clientSettings == null) {
+        api.Logger.Error("[{0}] The {1} was not loaded. Using default settings.", nameof(YeetInputHandler), nameof(ClientConfig));
+        clientSettings = new ClientConfig();
+      }
+
+      ShouldTryMouseCursorSlot = clientSettings.EnableMouseCursorItemYeet.Value;
+    }
+
+    protected virtual void RegisterHotKeys(IInputAPI inputAPI, EventApi eventApi) {
+      inputAPI.RegisterHotKey(Constants.YEET_ONE_CODE, Constants.YEET_ONE_DESC, Constants.DEFAULT_YEET_KEY);
+      inputAPI.SetHotKeyHandler(Constants.YEET_ONE_CODE, OnHotkeyYeetOne);
+
+      inputAPI.RegisterHotKey(Constants.YEET_HALF_CODE, Constants.YEET_HALF_DESC, Constants.DEFAULT_YEET_KEY, shiftPressed: true, ctrlPressed: true);
+      inputAPI.SetHotKeyHandler(Constants.YEET_HALF_CODE, OnHotkeyYeetHalf);
+
+      inputAPI.RegisterHotKey(Constants.YEET_ALL_CODE, Constants.YEET_ALL_DESC, Constants.DEFAULT_YEET_KEY, ctrlPressed: true);
+      inputAPI.SetHotKeyHandler(Constants.YEET_ALL_CODE, OnHotkeyYeetAll);
     }
 
     private bool OnHotkeyYeetOne(KeyCombination kc) {

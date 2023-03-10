@@ -10,7 +10,6 @@ namespace Yeet {
   public class YeetSystem : ModSystem {
     public ICoreAPI Api { get; private set; }
     public EnumAppSide Side => Api.Side;
-    public YeetConfig Config { get; private set; }
     public ErrorManager Error { get; private set; }
     public EventApi Event { get; private set; } = new EventApi();
     public MessageManager MessageManager { get; private set; }
@@ -28,8 +27,6 @@ namespace Yeet {
     public override void Start(ICoreAPI api) {
       base.Start(api);
       Api = api;
-      
-      Config = YeetConfig.Load(api);
 
       MessageManager = new MessageManager(this);
       Animation = new Yeet.Common.AnimationManager(this);

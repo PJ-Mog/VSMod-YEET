@@ -1,19 +1,31 @@
 using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 
 namespace Yeet.Server {
   public class SoundManager {
-    private YeetSystem System;
-    private float GruntAudibleRange => System.Config.GruntAudibleRange;
-    private float GruntVolume => System.Config.GruntVolume;
-    private float WooshAudibleRange => System.Config.WooshAudibleRange;
-    private float WooshVolume => System.Config.WooshVolume;
+    private YeetSystem System { get; }
+    private float GruntAudibleRange { get; set; }
+    private float GruntVolume { get; set; }
+    private float WooshAudibleRange { get; set; }
+    private float WooshVolume { get; set; }
 
     public SoundManager(YeetSystem system) {
       if (system.Side != EnumAppSide.Server) {
         return;
       }
       System = system;
+
+      LoadServerSettings(system.ServerAPI);
+
       System.Event.ItemYeeted += OnItemYeeted;
+    }
+
+    protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
+      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
+      GruntAudibleRange = serverSettings.GruntAudibleRange.Value;
+      GruntVolume = serverSettings.GruntVolume.Value;
+      WooshAudibleRange = serverSettings.WooshAudibleRange.Value;
+      WooshVolume = serverSettings.WooshVolume.Value;
     }
 
     private void OnItemYeeted(IPlayer yeeter) {
