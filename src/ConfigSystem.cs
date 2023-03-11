@@ -6,9 +6,9 @@ namespace Yeet {
   public class YeetConfigurationSystem : ConfigurationSystem<ServerConfig, ClientConfig> {
     public override string ChannelName => "japanhasrice.yeetconfig";
 
-    public override string ServerConfigFilename => "Yeet_ServerConfig";
+    public override string ServerConfigFilename => "Yeet_ServerConfig.json";
 
-    public override string ClientConfigFilename => "Yeet_ClientConfig";
+    public override string ClientConfigFilename => "Yeet_ClientConfig.json";
   }
 
   public class ClientConfig : RiceConfig.ClientConfig {

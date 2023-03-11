@@ -14,6 +14,8 @@ namespace Yeet.Client {
     protected IClientPlayer Player => System.ClientAPI.World.Player;
     protected bool IsMouseItemSlotEmpty => Player.InventoryManager.MouseItemSlot.Empty;
     protected bool IsActiveHotbarSlotEmpty => Player.InventoryManager.ActiveHotbarSlot.Empty;
+    // Current saturation does not utilize EntityBehaviorHunger because that behavior is server-side only
+    protected float CurrentSaturation => Player.Entity.WatchedAttributes.GetTreeAttribute("hunger")?.TryGetFloat("currentsaturation") ?? SaturationRequired;
 
     public YeetInputHandler(YeetSystem system) {
       if (system?.Side != EnumAppSide.Client) {
@@ -91,8 +93,7 @@ namespace Yeet.Client {
         return true;
       }
 
-      var currentSaturation = Player.Entity.GetBehavior<EntityBehaviorHunger>()?.Saturation ?? SaturationRequired;
-      if (currentSaturation < SaturationRequired) {
+      if (CurrentSaturation < SaturationRequired) {
         eventArgs.ErrorCode = Constants.ERROR_HUNGER;
         return false;
       }
@@ -126,6 +127,7 @@ namespace Yeet.Client {
       }
 
       eventArgs.SlotType = EnumYeetSlotType.Hotbar;
+      eventArgs.SlotId = Player.InventoryManager.ActiveHotbarSlotNumber;
       return true;
     }
 

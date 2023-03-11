@@ -28,6 +28,7 @@ namespace Yeet.Common {
 
     [ProtoMember(3)]
     public int SlotId { get; set; } = -1;
+    private bool ShouldSerializeSlotId() => true;
 
     [ProtoMember(4)]
     public Vec3d Pos { get; set; }
