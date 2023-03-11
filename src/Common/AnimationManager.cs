@@ -3,8 +3,8 @@ using Vintagestory.API.Common;
 
 namespace Yeet.Common {
   public class AnimationManager {
-    private YeetSystem System { get; }
-    private float ScreenShakeIntensity { get; set; }
+    protected YeetSystem System { get; }
+    protected float ScreenShakeIntensity { get; set; }
 
     public AnimationManager(YeetSystem system) {
       System = system;

@@ -2,12 +2,11 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
 using Yeet.Common;
-using Yeet.Common.Network;
 
 namespace Yeet.Server {
   public class YeetHandler {
-    private YeetSystem System { get; }
-    private float SaturationCostPerYeet { get; set; }
+    protected YeetSystem System { get; }
+    protected float SaturationCostPerYeet { get; set; }
 
     public YeetHandler(YeetSystem system) {
       if (system.Side != EnumAppSide.Server) {

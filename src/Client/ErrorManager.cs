@@ -3,8 +3,8 @@ using Vintagestory.API.Config;
 
 namespace Yeet.Common {
   public class ErrorManager {
-    private YeetSystem System { get; }
-    private readonly string langPrefix = $"{Constants.MOD_ID}:";
+    protected YeetSystem System { get; }
+    protected readonly string langPrefix = $"{Constants.MOD_ID}:";
 
     public ErrorManager(YeetSystem system) {
       if (system.Side == EnumAppSide.Server) { return; }
@@ -14,7 +14,7 @@ namespace Yeet.Common {
       System.Event.OnClientReceivedYeetEvent += TriggerClientError;
     }
 
-    public void TriggerClientError(YeetEventArgs eventArgs) {
+    protected virtual void TriggerClientError(YeetEventArgs eventArgs) {
       if (eventArgs.Successful) {
         return;
       }
@@ -22,7 +22,7 @@ namespace Yeet.Common {
       System.ClientAPI?.TriggerIngameError(System, eventArgs.ErrorCode, GetErrorText(eventArgs.ErrorCode, eventArgs.ErrorArgs));
     }
 
-    public string GetErrorText(string errorCode, params object[] args) {
+    protected virtual string GetErrorText(string errorCode, params object[] args) {
       string prefixedCode = errorCode.StartsWith(langPrefix) ? errorCode : $"{langPrefix}{errorCode}";
       string displayMessage = Lang.GetMatching(prefixedCode, args).Replace(langPrefix, "");
       return displayMessage;

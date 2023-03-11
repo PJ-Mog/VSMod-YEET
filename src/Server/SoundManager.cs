@@ -4,11 +4,11 @@ using Yeet.Common;
 
 namespace Yeet.Server {
   public class SoundManager {
-    private YeetSystem System { get; }
-    private float GruntAudibleRange { get; set; }
-    private float GruntVolume { get; set; }
-    private float WooshAudibleRange { get; set; }
-    private float WooshVolume { get; set; }
+    protected YeetSystem System { get; }
+    protected float GruntAudibleRange { get; set; }
+    protected float GruntVolume { get; set; }
+    protected float WooshAudibleRange { get; set; }
+    protected float WooshVolume { get; set; }
 
     public SoundManager(YeetSystem system) {
       if (system.Side != EnumAppSide.Server) {
@@ -29,7 +29,7 @@ namespace Yeet.Server {
       WooshVolume = serverSettings.WooshVolume.Value;
     }
 
-    private void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+    protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
       if (!eventArgs.Successful) {
         return;
       }
@@ -37,7 +37,7 @@ namespace Yeet.Server {
       StrongYeet(eventArgs.ForPlayer);
     }
 
-    public void StrongYeet(IPlayer yeeter) {
+    protected virtual void StrongYeet(IPlayer yeeter) {
       System.Api.World.PlaySoundAt(new AssetLocation("game:sounds/player/strike"),
                                          atEntity: yeeter.Entity,
                                          randomizePitch: true,

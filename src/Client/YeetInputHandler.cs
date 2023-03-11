@@ -69,7 +69,7 @@ namespace Yeet.Client {
       inputAPI.SetHotKeyHandler(Constants.YEET_ALL_CODE, eventApi.TriggerYeetAllKeyPressed);
     }
 
-    private void OnYeetHotkeyPressed(YeetEventArgs eventArgs) {
+    protected virtual void OnYeetHotkeyPressed(YeetEventArgs eventArgs) {
       if (!CanYeet(eventArgs)) {
         eventArgs.Successful = false;
         return;
@@ -81,12 +81,12 @@ namespace Yeet.Client {
       return;
     }
 
-    private bool CanYeet(YeetEventArgs eventArgs) {
+    protected virtual bool CanYeet(YeetEventArgs eventArgs) {
       return HasEnoughSaturation(eventArgs)
              && HasSomethingToYeet(eventArgs);
     }
 
-    private bool HasEnoughSaturation(YeetEventArgs eventArgs) {
+    protected virtual bool HasEnoughSaturation(YeetEventArgs eventArgs) {
       if (SaturationRequired == 0f) {
         return true;
       }
@@ -99,7 +99,7 @@ namespace Yeet.Client {
       return true;
     }
 
-    private bool HasSomethingToYeet(YeetEventArgs eventArgs) {
+    protected virtual bool HasSomethingToYeet(YeetEventArgs eventArgs) {
       return CanYeetMouseSlot(eventArgs)
              || CanYeetHotbarSlot(eventArgs);
     }
@@ -119,7 +119,7 @@ namespace Yeet.Client {
       return true;
     }
 
-    private bool CanYeetHotbarSlot(YeetEventArgs eventArgs) {
+    protected virtual bool CanYeetHotbarSlot(YeetEventArgs eventArgs) {
       if (IsActiveHotbarSlotEmpty) {
         eventArgs.ErrorCode = Constants.ERROR_NOTHING_TO_YEET;
         return false;
