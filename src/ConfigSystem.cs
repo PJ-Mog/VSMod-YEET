@@ -18,7 +18,7 @@ namespace Yeet {
       Description = "Whether the yeet action works for items held in the mouse slot."
     };
 
-    [JsonProperty, JsonConverter(typeof(SettingConverter<bool>))]
+    [JsonProperty, JsonConverter(typeof(SettingConverter<float>))]
     public Setting<float> ScreenShakeIntensity { get; set; } = new Setting<float> {
       Default = 0.5f,
       Min = 0f,
@@ -46,7 +46,7 @@ namespace Yeet {
       Description = "The force of the yeet."
     };
 
-    [JsonProperty, JsonConverter(typeof(SettingConverter<bool>))]
+    [JsonProperty, JsonConverter(typeof(SettingConverter<float>))]
     public Setting<float> WooshVolume { get; set; } = new Setting<float> {
       Default = 10f,
       Min = 1f,
@@ -54,7 +54,7 @@ namespace Yeet {
       Description = "Volume of the 'woosh' noise when an item is yeeted."
     };
 
-    [JsonProperty, JsonConverter(typeof(SettingConverter<bool>))]
+    [JsonProperty, JsonConverter(typeof(SettingConverter<float>))]
     public Setting<float> WooshAudibleRange { get; set; } = new Setting<float> {
       Default = 15f,
       Min = 1f,
@@ -62,7 +62,7 @@ namespace Yeet {
       Description = "Furthest distance at which the 'woosh' noise can be heard."
     };
 
-    [JsonProperty, JsonConverter(typeof(SettingConverter<bool>))]
+    [JsonProperty, JsonConverter(typeof(SettingConverter<float>))]
     public Setting<float> GruntVolume { get; set; } = new Setting<float> {
       Default = 15f,
       Min = 1f,
@@ -70,7 +70,7 @@ namespace Yeet {
       Description = "Volume of the player's grunting when yeeting."
     };
 
-    [JsonProperty, JsonConverter(typeof(SettingConverter<bool>))]
+    [JsonProperty, JsonConverter(typeof(SettingConverter<float>))]
     public Setting<float> GruntAudibleRange { get; set; } = new Setting<float> {
       Default = 50f,
       Min = 1f,
