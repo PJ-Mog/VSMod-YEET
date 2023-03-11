@@ -75,7 +75,7 @@ namespace Yeet.Client {
         return;
       }
 
-      eventArgs.Pos = Player.Entity.LocalEyePos;
+      eventArgs.Pos = Player.Entity.Pos.XYZ + Player.Entity.LocalEyePos;
       eventArgs.Velocity = GetYeetVelocity();
       eventArgs.Successful = true;
       return;
