@@ -18,10 +18,10 @@ namespace Yeet.Common {
 
   [ProtoContract]
   public class YeetEventArgs : EventArgs {
-    public KeyCombination KeyCombination { get; }
+    public KeyCombination KeyCombination { get; private set; }
 
     [ProtoMember(1)]
-    public EnumQuantity Quantity { get; }
+    public EnumQuantity Quantity { get; private set; }
 
     [ProtoMember(2)]
     public EnumYeetSlotType SlotType { get; set; }
