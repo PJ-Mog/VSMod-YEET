@@ -1,45 +1,99 @@
-using Yeet.Common.Network;
+using System;
+using ProtoBuf;
 using Vintagestory.API.Client;
-using Vintagestory.API.Common;
+using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
 namespace Yeet.Common {
+  public enum EnumQuantity {
+    One,
+    Half,
+    All
+  }
+
+  public enum EnumYeetSlotType {
+    Mouse,
+    Hotbar
+  }
+
+  [ProtoContract]
+  public class YeetEventArgs : EventArgs {
+    public KeyCombination KeyCombination { get; }
+
+    [ProtoMember(1)]
+    public EnumQuantity Quantity { get; }
+
+    [ProtoMember(2)]
+    public EnumYeetSlotType SlotType { get; set; }
+
+    [ProtoMember(3)]
+    public int SlotId { get; set; } = -1;
+
+    [ProtoMember(4)]
+    public Vec3d Pos { get; set; }
+
+    [ProtoMember(5)]
+    public Vec3d Velocity { get; set; }
+
+    [ProtoMember(6)]
+    public bool Successful { get; set; } = false;
+
+    public IServerPlayer ForPlayer { get; set; }
+
+    public string ErrorCode { get; set; } = "";
+
+    public object[] ErrorArgs { get; set; } = new object[0];
+
+    public YeetEventArgs(KeyCombination keyCombination, EnumQuantity quantity) {
+      KeyCombination = keyCombination;
+      Quantity = quantity;
+    }
+
+    private YeetEventArgs() { }
+  }
+
   public class EventApi {
-    // 1. Client presses hotkey => local checks performed.
-    
-    // 2a. Client has verified prerequisites. Yeet request was sent to server.
-    public event ClientRequestedYeetHandler ClientRequestedYeet;
-    public delegate void ClientRequestedYeetHandler(IClientPlayer yeeter, EnumYeetType yeetType, EnumYeetSlotType yeetSlot, double force);
-    public void StartClientRequestedYeet(IClientPlayer yeeter, EnumYeetType yeetType, EnumYeetSlotType yeetSlot, double force) {
-      ClientRequestedYeet?.Invoke(yeeter, yeetType, yeetSlot, force);
+    public event Action<YeetEventArgs> OnYeetHotkeyPressed;
+    public bool TriggerYeetOneKeyPressed(KeyCombination keyCombination) {
+      var eventArgs = new YeetEventArgs(keyCombination, EnumQuantity.One);
+      OnYeetHotkeyPressed?.Invoke(eventArgs);
+      TriggerAfterInput(eventArgs);
+      return eventArgs.Successful;
     }
 
-    // 2b. Client failed prerequisites.
-    public event YeetFailedToStartHandler YeetFailedToStart;
-    public delegate void YeetFailedToStartHandler(string errorCode);
-    public void StartYeetFailedToStart(string errorCode) {
-      YeetFailedToStart?.Invoke(errorCode);
+    public bool TriggerYeetHalfKeyPressed(KeyCombination keyCombination) {
+      var eventArgs = new YeetEventArgs(keyCombination, EnumQuantity.Half);
+      OnYeetHotkeyPressed?.Invoke(eventArgs);
+      TriggerAfterInput(eventArgs);
+      return eventArgs.Successful;
     }
 
-    // 3. Server received yeet request data.
-    public event YeetRequestReceivedHandler YeetRequestReceived;
-    public delegate void YeetRequestReceivedHandler(IServerPlayer forPlayer, YeetPacket yeetData);
-    public void StartYeetRequestReceived(IServerPlayer forPlayer, YeetPacket yeetData) {
-      YeetRequestReceived?.Invoke(forPlayer, yeetData);
+    public bool TriggerYeetAllKeyPressed(KeyCombination keyCombination) {
+      var eventArgs = new YeetEventArgs(keyCombination, EnumQuantity.All);
+      OnYeetHotkeyPressed?.Invoke(eventArgs);
+      TriggerAfterInput(eventArgs);
+      return eventArgs.Successful;
     }
 
-    // 4a. Server has verified prerequisites and item was launched.
-    public event ItemYeetedHandler ItemYeeted;
-    public delegate void ItemYeetedHandler(IPlayer yeeter);
-    public void StartItemYeeted(IPlayer yeeter) {
-      ItemYeeted?.Invoke(yeeter);
+    public event Action<YeetEventArgs> OnAfterInput;
+    public void TriggerAfterInput(YeetEventArgs eventArgs) {
+      OnAfterInput?.Invoke(eventArgs);
     }
 
-    // 4b. Server failed prerequisites.
-    public event YeetCanceledHandler YeetCanceled;
-    public delegate void YeetCanceledHandler(IPlayer wouldBeYeeter, string errorCode);
-    public void StartYeetCanceled(IPlayer wouldbeYeeter, string errorCode) {
-      YeetCanceled?.Invoke(wouldbeYeeter, errorCode);
+    public event Action<YeetEventArgs> OnServerReceivedYeetEvent;
+    public void TriggerServerReceivedYeetEvent(YeetEventArgs eventArgs) {
+      OnServerReceivedYeetEvent?.Invoke(eventArgs);
+      TriggerAfterServerHandledEvent(eventArgs);
+    }
+
+    public event Action<YeetEventArgs> OnAfterServerHandledEvent;
+    public void TriggerAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      OnAfterServerHandledEvent?.Invoke(eventArgs);
+    }
+
+    public event Action<YeetEventArgs> OnClientReceivedYeetEvent;
+    public void TriggerClientReceivedYeetEvent(YeetEventArgs eventArgs) {
+      OnClientReceivedYeetEvent?.Invoke(eventArgs);
     }
   }
 }

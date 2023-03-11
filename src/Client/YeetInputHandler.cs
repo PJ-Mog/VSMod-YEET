@@ -1,22 +1,32 @@
-using Yeet.Common;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.MathTools;
+using Vintagestory.GameContent;
+using Yeet.Common;
 
 namespace Yeet.Client {
   public class YeetInputHandler {
-    protected YeetSystem System;
-    protected IClientPlayer Player => System.ClientAPI.World.Player;
-    protected bool ShouldTryMouseCursorSlot { get; set; }
+    protected YeetSystem System { get; }
+    protected bool IsMouseSlotYeetEnabled { get; set; }
     protected float SaturationRequired { get; set; }
     protected double YeetForce { get; set; }
 
+    protected IClientPlayer Player => System.ClientAPI.World.Player;
+    protected bool IsMouseItemSlotEmpty => Player.InventoryManager.MouseItemSlot.Empty;
+    protected bool IsActiveHotbarSlotEmpty => Player.InventoryManager.ActiveHotbarSlot.Empty;
+
     public YeetInputHandler(YeetSystem system) {
-      if (system.Side != EnumAppSide.Client) { return; };
+      if (system?.Side != EnumAppSide.Client) {
+        return;
+      }
+
       System = system;
 
       LoadServerSettings(system.Api);
       LoadClientSettings(system.Api);
       RegisterHotKeys(system.ClientAPI.Input, system.Event);
+
+      system.Event.OnYeetHotkeyPressed += OnYeetHotkeyPressed;
     }
 
     protected virtual void LoadServerSettings(ICoreAPI api) {
@@ -45,84 +55,86 @@ namespace Yeet.Client {
         clientSettings = new ClientConfig();
       }
 
-      ShouldTryMouseCursorSlot = clientSettings.EnableMouseCursorItemYeet.Value;
+      IsMouseSlotYeetEnabled = clientSettings.EnableMouseCursorItemYeet.Value;
     }
 
     protected virtual void RegisterHotKeys(IInputAPI inputAPI, EventApi eventApi) {
       inputAPI.RegisterHotKey(Constants.YEET_ONE_CODE, Constants.YEET_ONE_DESC, Constants.DEFAULT_YEET_KEY);
-      inputAPI.SetHotKeyHandler(Constants.YEET_ONE_CODE, OnHotkeyYeetOne);
+      inputAPI.SetHotKeyHandler(Constants.YEET_ONE_CODE, eventApi.TriggerYeetOneKeyPressed);
 
       inputAPI.RegisterHotKey(Constants.YEET_HALF_CODE, Constants.YEET_HALF_DESC, Constants.DEFAULT_YEET_KEY, shiftPressed: true, ctrlPressed: true);
-      inputAPI.SetHotKeyHandler(Constants.YEET_HALF_CODE, OnHotkeyYeetHalf);
+      inputAPI.SetHotKeyHandler(Constants.YEET_HALF_CODE, eventApi.TriggerYeetHalfKeyPressed);
 
       inputAPI.RegisterHotKey(Constants.YEET_ALL_CODE, Constants.YEET_ALL_DESC, Constants.DEFAULT_YEET_KEY, ctrlPressed: true);
-      inputAPI.SetHotKeyHandler(Constants.YEET_ALL_CODE, OnHotkeyYeetAll);
+      inputAPI.SetHotKeyHandler(Constants.YEET_ALL_CODE, eventApi.TriggerYeetAllKeyPressed);
     }
 
-    private bool OnHotkeyYeetOne(KeyCombination kc) {
-      return TryToYeet(EnumYeetType.One);
+    private void OnYeetHotkeyPressed(YeetEventArgs eventArgs) {
+      if (!CanYeet(eventArgs)) {
+        eventArgs.Successful = false;
+        return;
+      }
+
+      eventArgs.Pos = Player.Entity.LocalEyePos;
+      eventArgs.Velocity = GetYeetVelocity();
+      eventArgs.Successful = true;
+      return;
     }
 
-    private bool OnHotkeyYeetHalf(KeyCombination kc) {
-      return TryToYeet(EnumYeetType.Half);
+    private bool CanYeet(YeetEventArgs eventArgs) {
+      return HasEnoughSaturation(eventArgs)
+             && HasSomethingToYeet(eventArgs);
     }
 
-    private bool OnHotkeyYeetAll(KeyCombination kc) {
-      return TryToYeet(EnumYeetType.All);
-    }
-
-    private bool TryToYeet(EnumYeetType yeetType) {
-      if (CanYeet(out EnumYeetSlotType yeetSlot, out string errorCode)) {
-        System.MessageManager.RequestYeet(Player, yeetType, yeetSlot, YeetForce);
+    private bool HasEnoughSaturation(YeetEventArgs eventArgs) {
+      if (SaturationRequired == 0f) {
         return true;
       }
-      System.Event.StartYeetFailedToStart(errorCode);
-      return false;
-    }
 
-    private bool CanYeet(out EnumYeetSlotType yeetSlot, out string errorCode) {
-      yeetSlot = EnumYeetSlotType.Hotbar;
-      return HasEnoughSaturation(out errorCode)
-             && HasSomethingToYeet(out yeetSlot, out errorCode);
-    }
-
-    private bool HasEnoughSaturation(out string errorCode) {
-      errorCode = "";
-      if (!(SaturationRequired > 0)) { return true; }
-      var currentSaturation = Player.Entity.WatchedAttributes.GetTreeAttribute("hunger")?.TryGetFloat("currentsaturation");
-      bool enoughSaturation = (currentSaturation == null ? true : currentSaturation >= SaturationRequired);
-      if (!enoughSaturation) {
-        errorCode = System.Error.GetErrorText(Constants.ERROR_HUNGER);
-      }
-      return enoughSaturation;
-    }
-
-    private bool HasSomethingToYeet(out EnumYeetSlotType yeetSlot, out string errorCode) {
-      yeetSlot = EnumYeetSlotType.Hotbar;
-      errorCode = "";
-      if (CanYeetMouseSlot()) {
-        yeetSlot = EnumYeetSlotType.Mouse;
-        return true;
-      }
-      if (CanYeetHotbarSlot(out errorCode)) {
-        yeetSlot = EnumYeetSlotType.Hotbar;
-        return true;
-      }
-      return false;
-    }
-
-    private bool CanYeetMouseSlot() {
-      return ShouldTryMouseCursorSlot
-             && !Player.InventoryManager.MouseItemSlot.Empty;
-    }
-
-    private bool CanYeetHotbarSlot(out string errorCode) {
-      errorCode = "";
-      if (Player.InventoryManager.ActiveHotbarSlot.Empty) {
-        errorCode = System.Error.GetErrorText(Constants.ERROR_NOTHING_TO_YEET);
+      var currentSaturation = Player.Entity.GetBehavior<EntityBehaviorHunger>()?.Saturation ?? SaturationRequired;
+      if (currentSaturation < SaturationRequired) {
+        eventArgs.ErrorCode = Constants.ERROR_HUNGER;
         return false;
       }
       return true;
+    }
+
+    private bool HasSomethingToYeet(YeetEventArgs eventArgs) {
+      return CanYeetMouseSlot(eventArgs)
+             || CanYeetHotbarSlot(eventArgs);
+    }
+
+    protected virtual bool CanYeetMouseSlot(YeetEventArgs eventArgs) {
+      if (!IsMouseSlotYeetEnabled) {
+        eventArgs.ErrorCode = "Yeeting of mouse-held items is disabled.";
+        return false;
+      }
+
+      if (IsMouseItemSlotEmpty) {
+        eventArgs.ErrorCode = Constants.ERROR_NOTHING_TO_YEET;
+        return false;
+      }
+
+      eventArgs.SlotType = EnumYeetSlotType.Mouse;
+      return true;
+    }
+
+    private bool CanYeetHotbarSlot(YeetEventArgs eventArgs) {
+      if (IsActiveHotbarSlotEmpty) {
+        eventArgs.ErrorCode = Constants.ERROR_NOTHING_TO_YEET;
+        return false;
+      }
+
+      eventArgs.SlotType = EnumYeetSlotType.Hotbar;
+      return true;
+    }
+
+    protected virtual Vec3d GetYeetVelocity() {
+      var yaw = Player.CameraMode == EnumCameraMode.Overhead ? Player.Entity.BodyYaw : Player.Entity.Pos.Yaw;
+      var theta = GameMath.PIHALF + yaw;
+      return new Vec3d(YeetForce * Constants.SIN_PHI * GameMath.FastSin(theta),
+                       YeetForce * Constants.COS_PHI,
+                       YeetForce * Constants.SIN_PHI * GameMath.FastCos(theta));
     }
   }
 }

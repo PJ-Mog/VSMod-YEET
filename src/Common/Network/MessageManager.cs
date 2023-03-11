@@ -1,4 +1,3 @@
-using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
@@ -10,51 +9,39 @@ namespace Yeet.Common.Network {
       System = system;
 
       System.Api.Network.RegisterChannel(Constants.MOD_ID)
-        .RegisterMessageType(typeof(YeetPacket))
-        .RegisterMessageType(typeof(YeetSuccessPacket))
-        .RegisterMessageType(typeof(YeetCanceledPacket));
-      
-      if (System.Side == EnumAppSide.Server) {
-        System.ServerChannel.SetMessageHandler<YeetPacket>(OnReceivedYeetRequest);
+        .RegisterMessageType<YeetEventArgs>();
 
-        System.Event.ItemYeeted += OnItemYeetedServer;
-        System.Event.YeetCanceled += OnYeetCanceledServer;
+      if (System.Side == EnumAppSide.Server) {
+        System.ServerChannel.SetMessageHandler<YeetEventArgs>(OnServerReceivedYeetEvent);
+
+        System.Event.OnAfterServerHandledEvent += OnAfterServerHandledEvent;
       }
       else {
-        System.ClientChannel.SetMessageHandler<YeetSuccessPacket>(OnItemYeetedClient);
-        System.ClientChannel.SetMessageHandler<YeetCanceledPacket>(OnYeetCanceledClient);
+        System.ClientChannel.SetMessageHandler<YeetEventArgs>(OnClientReceivedYeetEvent);
+
+        System.Event.OnAfterInput += OnAfterInput;
       }
     }
 
-    public void RequestYeet(IClientPlayer player, EnumYeetType yeetType, EnumYeetSlotType yeetSlot, double force) {
-      System.ClientChannel.SendPacket(new YeetPacket(player, yeetType, yeetSlot, force));
-      System.Event.StartClientRequestedYeet(player, yeetType, yeetSlot, force);
-    }
-
-    public void OnReceivedYeetRequest(IServerPlayer forPlayer, YeetPacket yeetData) {
-      System.Event.StartYeetRequestReceived(forPlayer, yeetData);
-    }
-
-    public void OnYeetCanceledServer(IPlayer player, string errorCode) {
-      var serverPlayer = player as IServerPlayer;
-      if (serverPlayer != null) {
-        System.ServerChannel.SendPacket(new YeetCanceledPacket(errorCode), serverPlayer);
+    protected virtual void OnAfterInput(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful) {
+        return;
       }
+
+      System.ClientChannel.SendPacket<YeetEventArgs>(eventArgs);
     }
 
-    public void OnYeetCanceledClient(YeetCanceledPacket packet) {
-      System.Event.StartYeetCanceled(System.ClientAPI.World.Player, packet.ErrorCode);
+    protected virtual void OnServerReceivedYeetEvent(IServerPlayer forPlayer, YeetEventArgs eventArgs) {
+      eventArgs.ForPlayer = forPlayer;
+      System.Event.TriggerServerReceivedYeetEvent(eventArgs);
     }
 
-    public void OnItemYeetedServer(IPlayer player) {
-      var serverPlayer = player as IServerPlayer;
-      if (serverPlayer != null) {
-        System.ServerChannel.SendPacket(new YeetSuccessPacket(), serverPlayer);
-      }
+    protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      System.ServerChannel.SendPacket<YeetEventArgs>(eventArgs, eventArgs.ForPlayer);
     }
 
-    public void OnItemYeetedClient(YeetSuccessPacket packet) {
-      System.Event.StartItemYeeted(System.ClientAPI.World.Player);
+    protected virtual void OnClientReceivedYeetEvent(YeetEventArgs eventArgs) {
+      System.Event.TriggerClientReceivedYeetEvent(eventArgs);
     }
   }
 }

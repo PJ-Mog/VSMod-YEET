@@ -17,7 +17,8 @@ namespace Yeet.Server {
 
       LoadServerSettings(system.ServerAPI);
 
-      System.Event.YeetRequestReceived += OnYeetRequestReceived;
+      System.Event.OnServerReceivedYeetEvent += OnServerReceivedYeetEvent;
+      System.Event.OnAfterServerHandledEvent += OnAfterServerHandledEvent;
     }
 
     protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
@@ -26,48 +27,50 @@ namespace Yeet.Server {
       SaturationCostPerYeet = serverSettings.SaturationCostPerYeet.Value;
     }
 
-    private void OnYeetRequestReceived(IServerPlayer player, YeetPacket packet) {
+    protected virtual void OnServerReceivedYeetEvent(YeetEventArgs eventArgs) {
       ItemSlot slot;
-      switch (packet.YeetSlotType) {
+      switch (eventArgs.SlotType) {
         case EnumYeetSlotType.Mouse:
-          slot = player.InventoryManager.MouseItemSlot;
+          slot = eventArgs.ForPlayer.InventoryManager.MouseItemSlot;
           break;
         case EnumYeetSlotType.Hotbar:
         default:
-          slot = player.InventoryManager.GetHotbarInventory()[packet.SlotId];
+          slot = eventArgs.ForPlayer.InventoryManager.GetHotbarInventory()[eventArgs.SlotId];
           break;
       }
 
       if (slot == null || slot.Empty) {
-        System.Event.StartYeetCanceled(player, Constants.ERROR_NOTHING_TO_YEET);
+        eventArgs.Successful = false;
+        eventArgs.ErrorCode = Constants.ERROR_NOTHING_TO_YEET;
         return;
       }
 
       ItemStack stackToYeet;
-      switch (packet.YeetType) {
-        case EnumYeetType.All:
+      switch (eventArgs.Quantity) {
+        case EnumQuantity.All:
           stackToYeet = slot.TakeOutWhole();
           break;
-        case EnumYeetType.Half:
+        case EnumQuantity.Half:
           stackToYeet = slot.TakeOut(GetHalfStackSizeRoundedUp(slot));
           break;
-        case EnumYeetType.One:
+        case EnumQuantity.One:
         default:
           stackToYeet = slot.TakeOut(1);
           break;
       }
 
-      System.ServerAPI.World.SpawnItemEntity(stackToYeet, packet.YeetedFromPos, packet.YeetedVelocity);
+      System.ServerAPI.World.SpawnItemEntity(stackToYeet, eventArgs.Pos, eventArgs.Velocity);
       slot.MarkDirty();
-
-      player.Entity.GetBehavior<EntityBehaviorHunger>()?.ConsumeSaturation(SaturationCostPerYeet);
-
-      System.Event.StartItemYeeted(player);
+      eventArgs.Successful = true;
     }
 
-    private int GetHalfStackSizeRoundedUp(ItemSlot slot) {
+    protected int GetHalfStackSizeRoundedUp(ItemSlot slot) {
       var stackSize = slot?.Itemstack?.StackSize ?? 0;
       return stackSize / 2 + stackSize % 2;
+    }
+
+    protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      eventArgs.ForPlayer.Entity.GetBehavior<EntityBehaviorHunger>()?.ConsumeSaturation(SaturationCostPerYeet);
     }
   }
 }

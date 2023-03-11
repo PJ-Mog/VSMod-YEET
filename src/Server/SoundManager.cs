@@ -1,5 +1,6 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
+using Yeet.Common;
 
 namespace Yeet.Server {
   public class SoundManager {
@@ -17,7 +18,7 @@ namespace Yeet.Server {
 
       LoadServerSettings(system.ServerAPI);
 
-      System.Event.ItemYeeted += OnItemYeeted;
+      System.Event.OnAfterServerHandledEvent += OnAfterServerHandledEvent;
     }
 
     protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
@@ -28,8 +29,12 @@ namespace Yeet.Server {
       WooshVolume = serverSettings.WooshVolume.Value;
     }
 
-    private void OnItemYeeted(IPlayer yeeter) {
-      StrongYeet(yeeter);
+    private void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful) {
+        return;
+      }
+
+      StrongYeet(eventArgs.ForPlayer);
     }
 
     public void StrongYeet(IPlayer yeeter) {

@@ -1,5 +1,5 @@
-using Vintagestory.API.Config;
 using Vintagestory.API.Common;
+using Vintagestory.API.Config;
 
 namespace Yeet.Common {
   public class ErrorManager {
@@ -10,19 +10,16 @@ namespace Yeet.Common {
       if (system.Side == EnumAppSide.Server) { return; }
       System = system;
 
-      System.Event.YeetFailedToStart += OnFailedToStart;
-      System.Event.YeetCanceled += OnYeetCanceled;
+      System.Event.OnAfterInput += TriggerClientError;
+      System.Event.OnClientReceivedYeetEvent += TriggerClientError;
     }
 
-    private void OnFailedToStart(string errorCode) {
-      TriggerFromClient(errorCode);
-    }
-    private void OnYeetCanceled(IPlayer yeeter, string errorCode) {
-      TriggerFromClient(errorCode);
-    }
+    public void TriggerClientError(YeetEventArgs eventArgs) {
+      if (eventArgs.Successful) {
+        return;
+      }
 
-    public void TriggerFromClient(string errorCode, params object[] args) {
-      System.ClientAPI?.TriggerIngameError(System, errorCode, GetErrorText(errorCode, args));
+      System.ClientAPI?.TriggerIngameError(System, eventArgs.ErrorCode, GetErrorText(eventArgs.ErrorCode, eventArgs.ErrorArgs));
     }
 
     public string GetErrorText(string errorCode, params object[] args) {
