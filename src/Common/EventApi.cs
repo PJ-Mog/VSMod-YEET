@@ -1,6 +1,7 @@
 using System;
 using ProtoBuf;
 using Vintagestory.API.Client;
+using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
@@ -38,6 +39,8 @@ namespace Yeet.Common {
 
     [ProtoMember(6)]
     public bool Successful { get; set; } = false;
+
+    public EntityItem YeetedEntityItem { get; set; }
 
     public IServerPlayer ForPlayer { get; set; }
 

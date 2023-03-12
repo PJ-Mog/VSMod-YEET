@@ -11,6 +11,7 @@ namespace Yeet.Common {
 
       System.Event.OnAfterInput += OnAfterInput;
       System.Event.OnServerReceivedYeetEvent += OnServerReceivedYeetEvent;
+      System.Event.OnAfterServerHandledEvent += OnAfterServerHandledEvent;
       System.Event.OnClientReceivedYeetEvent += OnClientReceivedYeetEvent;
 
       if (system.Api is ICoreClientAPI capi) {
@@ -36,23 +37,32 @@ namespace Yeet.Common {
       StartWindup(eventArgs.ForPlayer.Entity);
     }
 
+    protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful || eventArgs.YeetedEntityItem == null) {
+        return;
+      }
+
+      eventArgs.YeetedEntityItem.AddBehavior(SpawnShockwavesEntityBehavior.Create(eventArgs.YeetedEntityItem));
+    }
+
     protected virtual void OnClientReceivedYeetEvent(YeetEventArgs eventArgs) {
       if (!eventArgs.Successful) {
         OnFailedYeet(System.ClientAPI?.World.Player);
         return;
       }
 
-      OnSuccessfulYeet(System.ClientAPI?.World.Player);
+      OnSuccessfulYeet(eventArgs);
     }
 
     protected virtual void OnFailedYeet(IPlayer yeeter) {
       StopWindup(yeeter.Entity);
     }
 
-    protected virtual void OnSuccessfulYeet(IPlayer yeeter) {
+    protected virtual void OnSuccessfulYeet(YeetEventArgs eventArgs) {
       ShakeScreen();
-      StopWindup(yeeter.Entity);
-      StrongYeet(yeeter.Entity);
+      var playerEntity = System.ClientAPI.World.Player.Entity;
+      StopWindup(playerEntity);
+      StrongYeet(playerEntity);
     }
 
     protected virtual void ShakeScreen() {

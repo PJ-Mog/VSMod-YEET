@@ -58,7 +58,7 @@ namespace Yeet.Server {
           break;
       }
 
-      System.ServerAPI.World.SpawnItemEntity(stackToYeet, eventArgs.Pos, eventArgs.Velocity);
+      eventArgs.YeetedEntityItem = System.ServerAPI.World.SpawnItemEntity(stackToYeet, eventArgs.Pos, eventArgs.Velocity) as EntityItem;
       slot.MarkDirty();
       eventArgs.Successful = true;
     }
