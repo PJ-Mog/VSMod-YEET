@@ -54,15 +54,16 @@ namespace Yeet.Common {
     }
 
     protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
-      if (!eventArgs.Successful || eventArgs.YeetedEntityItem == null) {
+      if (!eventArgs.Successful) {
+        OnFailedYeet(eventArgs.ForPlayer);
         return;
       }
 
-      if (!ShouldSpawnShockwaves) {
-        return;
+      if (ShouldSpawnShockwaves && eventArgs.YeetedEntityItem != null) {
+        eventArgs.YeetedEntityItem.AddBehavior(SpawnShockwavesEntityBehavior.Create(eventArgs.YeetedEntityItem));
       }
 
-      eventArgs.YeetedEntityItem.AddBehavior(SpawnShockwavesEntityBehavior.Create(eventArgs.YeetedEntityItem));
+      OnSuccessfulYeet(eventArgs);
     }
 
     protected virtual void OnClientReceivedYeetEvent(YeetEventArgs eventArgs) {
@@ -79,8 +80,14 @@ namespace Yeet.Common {
     }
 
     protected virtual void OnSuccessfulYeet(YeetEventArgs eventArgs) {
-      ShakeScreen();
-      var playerEntity = System.ClientAPI.World.Player.Entity;
+      EntityPlayer playerEntity;
+      if (System.Api.Side == EnumAppSide.Server) {
+        playerEntity = eventArgs.ForPlayer.Entity;
+      }
+      else {
+        playerEntity = System.ClientAPI.World.Player.Entity;
+        ShakeScreen();
+      }
       StopWindup(playerEntity);
       StrongYeet(playerEntity);
     }
