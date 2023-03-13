@@ -1,6 +1,8 @@
 using Newtonsoft.Json;
 using ProtoBuf;
 using RiceConfig;
+using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 
 namespace Yeet {
   public class YeetConfigurationSystem : ConfigurationSystem<ServerConfig, ClientConfig> {
@@ -9,6 +11,58 @@ namespace Yeet {
     public override string ServerConfigFilename => "Yeet_ServerConfig.json";
 
     public override string ClientConfigFilename => "Yeet_ClientConfig.json";
+
+    public override void StartServerSide(ICoreServerAPI sapi) {
+      base.StartServerSide(sapi);
+
+      var parsers = sapi.ChatCommands.Parsers;
+      sapi.ChatCommands.Create("yeetconfig")
+                      .WithDescription("Adjust YEET's server settings.")
+                      .RequiresPrivilege(Privilege.buildblocks)
+
+                      .BeginSubCommand("get")
+                        .WithDescription("View current server settings.")
+                        .WithArgs(parsers.OptionalWord("settingname"))
+                        .HandleWith(HandleGetServerSettings)
+                        .RequiresPrivilege(Privilege.buildblocks)
+                      .EndSubCommand()
+
+                      .BeginSubCommand("set")
+                        .WithDescription("Change current server settings.")
+                        .WithArgs(parsers.Word("settingname"), parsers.Word("value"))
+                        .HandleWith(HandleSetServerSettings)
+                        .RequiresPrivilege(Privilege.controlserver)
+                      .EndSubCommand()
+                      .Validate();
+
+    }
+
+    protected virtual TextCommandResult HandleGetServerSettings(TextCommandCallingArgs args) {
+      var settingName = args.Parsers.Find((a) => a.ArgumentName == "settingname")?.GetValue() as string;
+      if (settingName == null || settingName == "") {
+        return GetAllServerSettings();
+      }
+
+      return GetServerSetting(settingName);
+    }
+
+    protected virtual TextCommandResult GetAllServerSettings() {
+      return TextCommandResult.Success(this.ServerSettings.ToString());
+    }
+
+    protected virtual TextCommandResult GetServerSetting(string settingName) {
+      var setting = ServerSettings.GetType().GetProperty(settingName)?.GetValue(ServerSettings);
+      if (setting == null) {
+        return TextCommandResult.Error($"No such setting exists '{settingName}'. Check spelling and use PascalCase capitalization.");
+      }
+
+      var value = setting.GetType().GetProperty("Value")?.GetValue(setting);
+      return TextCommandResult.Success(settingName + ": " + value);
+    }
+
+    protected virtual TextCommandResult HandleSetServerSettings(TextCommandCallingArgs args) {
+      return TextCommandResult.Error("Not implemented yet.");
+    }
   }
 
   public class ClientConfig : RiceConfig.ClientConfig {
