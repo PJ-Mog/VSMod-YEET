@@ -4,7 +4,7 @@ using Vintagestory.API.MathTools;
 using Yeet.Common;
 
 namespace Yeet.Client {
-  public class YeetInputHandler {
+  public class InputHandler {
     protected YeetSystem System { get; }
     protected bool IsMouseSlotYeetEnabled { get; set; }
     protected float SaturationRequired { get; set; }
@@ -16,7 +16,7 @@ namespace Yeet.Client {
     // Current saturation does not utilize EntityBehaviorHunger because that behavior is server-side only
     protected float CurrentSaturation => Player.Entity.WatchedAttributes.GetTreeAttribute("hunger")?.TryGetFloat("currentsaturation") ?? SaturationRequired;
 
-    public YeetInputHandler(YeetSystem system) {
+    public InputHandler(YeetSystem system) {
       if (system?.Side != EnumAppSide.Client) {
         return;
       }
@@ -33,7 +33,7 @@ namespace Yeet.Client {
     protected virtual void LoadServerSettings(ICoreAPI api) {
       var configSystem = api.ModLoader.GetModSystem<YeetConfigurationSystem>();
       if (configSystem == null) {
-        api.Logger.Error("[{0}] {1} was not loaded. Using defaults.", nameof(YeetInputHandler), nameof(YeetConfigurationSystem));
+        api.Logger.Error("[{0}] {1} was not loaded. Using defaults.", nameof(InputHandler), nameof(YeetConfigurationSystem));
         LoadServerSettings(new ServerConfig());
         return;
       }
@@ -52,7 +52,7 @@ namespace Yeet.Client {
     protected virtual void LoadClientSettings(ICoreAPI api) {
       var clientSettings = api.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ClientSettings;
       if (clientSettings == null) {
-        api.Logger.Error("[{0}] The {1} was not loaded. Using default settings.", nameof(YeetInputHandler), nameof(ClientConfig));
+        api.Logger.Error("[{0}] The {1} was not loaded. Using default settings.", nameof(InputHandler), nameof(ClientConfig));
         clientSettings = new ClientConfig();
       }
 

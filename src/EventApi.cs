@@ -5,7 +5,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Server;
 
-namespace Yeet.Common {
+namespace Yeet {
   public enum EnumQuantity {
     One,
     Half,

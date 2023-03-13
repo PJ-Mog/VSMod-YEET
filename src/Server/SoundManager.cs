@@ -1,6 +1,5 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
-using Yeet.Common;
 
 namespace Yeet.Server {
   public class SoundManager {

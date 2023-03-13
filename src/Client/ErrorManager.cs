@@ -1,7 +1,8 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
+using Yeet.Common;
 
-namespace Yeet.Common {
+namespace Yeet.Client {
   public class ErrorManager {
     protected YeetSystem System { get; }
     protected readonly string langPrefix = $"{Constants.MOD_ID}:";
