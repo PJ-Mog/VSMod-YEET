@@ -1,10 +1,12 @@
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 
 namespace Yeet.Common {
   public class AnimationManager {
     protected YeetSystem System { get; }
     protected float ScreenShakeIntensity { get; set; }
+    protected bool ShouldSpawnShockwaves { get; set; }
 
     public AnimationManager(YeetSystem system) {
       System = system;
@@ -16,13 +18,27 @@ namespace Yeet.Common {
 
       if (system.Api is ICoreClientAPI capi) {
         LoadClientSettings(capi);
-        ScreenShakeIntensity = capi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ClientSettings?.ScreenShakeIntensity.Value ?? new ClientConfig().ScreenShakeIntensity.Value;
+      }
+      else {
+        LoadServerSettings(system.Api as ICoreServerAPI);
       }
     }
 
     protected virtual void LoadClientSettings(ICoreClientAPI capi) {
       var clientSettings = capi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ClientSettings ?? new ClientConfig();
       ScreenShakeIntensity = clientSettings.ScreenShakeIntensity.Value;
+    }
+
+    protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
+      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
+
+      SpawnShockwavesEntityBehavior.MaxRingsToSpawn = serverSettings.MaxShockwaveRingsToSpawn.Value;
+      SpawnShockwavesEntityBehavior.MinTimeBetweenRingsMillis = serverSettings.MinTimeBetweenRingsMillis.Value;
+      SpawnShockwavesEntityBehavior.MaxTimeBetweenRingsMillis = serverSettings.MaxTimeBetweenRingsMillis.Value;
+      SpawnShockwavesEntityBehavior.ParticlesPerRing = serverSettings.ParticlesPerRing.Value;
+      SpawnShockwavesEntityBehavior.VelocityFactor = serverSettings.ShockwaveVelocityFactor.Value;
+
+      ShouldSpawnShockwaves = SpawnShockwavesEntityBehavior.MaxRingsToSpawn > 0 && SpawnShockwavesEntityBehavior.ParticlesPerRing > 0;
     }
 
     protected virtual void OnAfterInput(YeetEventArgs eventArgs) {
@@ -39,6 +55,10 @@ namespace Yeet.Common {
 
     protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
       if (!eventArgs.Successful || eventArgs.YeetedEntityItem == null) {
+        return;
+      }
+
+      if (!ShouldSpawnShockwaves) {
         return;
       }
 

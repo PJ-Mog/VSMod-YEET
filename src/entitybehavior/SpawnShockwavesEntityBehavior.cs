@@ -4,6 +4,12 @@ using Vintagestory.API.MathTools;
 
 namespace Yeet {
   public class SpawnShockwavesEntityBehavior : EntityBehavior {
+    internal static int MaxRingsToSpawn { get; set; } = 3;
+    internal static int MinTimeBetweenRingsMillis { get; set; } = 250;
+    internal static int MaxTimeBetweenRingsMillis { get; set; } = 500;
+    internal static int ParticlesPerRing { get; set; } = 20;
+    internal static float VelocityFactor { get; set; } = 3f;
+
     protected long spawnNextRingAt;
     protected int ringsSpawned = 0;
     protected bool active = false;
@@ -11,7 +17,7 @@ namespace Yeet {
     public static SpawnShockwavesEntityBehavior Create(EntityItem entityItem) {
       var behavior = new SpawnShockwavesEntityBehavior(entityItem);
       behavior.active = true;
-      behavior.spawnNextRingAt = entityItem.World.ElapsedMilliseconds + entityItem.World.Rand.Next(250, 400);
+      behavior.spawnNextRingAt = entityItem.World.ElapsedMilliseconds + entityItem.World.Rand.Next(MinTimeBetweenRingsMillis, MaxTimeBetweenRingsMillis);
       return behavior;
     }
 
@@ -44,16 +50,16 @@ namespace Yeet {
       SpawnShockwaveRing();
       ringsSpawned++;
 
-      if (ringsSpawned >= 3) {
+      if (ringsSpawned >= MaxRingsToSpawn) {
         active = false;
         return;
       }
 
-      spawnNextRingAt = entity.World.ElapsedMilliseconds + entity.World.Rand.Next(250, 500);
+      spawnNextRingAt = entity.World.ElapsedMilliseconds + entity.World.Rand.Next(MinTimeBetweenRingsMillis, MaxTimeBetweenRingsMillis);
     }
 
     protected void SpawnShockwaveRing() {
-      for (int i = 0; i < 50; i++) {
+      for (int i = 0; i < ParticlesPerRing; i++) {
         var perpendicular = GetRandomVectorPerpendicularTo(entity.SidedPos.Motion);
         var particleProps = GetShockwaveParticleProps(perpendicular);
         entity.World.SpawnParticles(particleProps);
@@ -62,7 +68,7 @@ namespace Yeet {
 
     protected virtual Vec3f GetRandomVectorPerpendicularTo(Vec3d originalVector) {
       var randomVector = new Vec3d(entity.World.Rand.NextDouble() * 12 - 6, entity.World.Rand.NextDouble() * 12 - 6, entity.World.Rand.NextDouble() * 12 - 6);
-      return (entity.Pos.Motion.Cross(randomVector).Normalize() * entity.Pos.Motion.Length()).ToVec3f() * 3;
+      return (entity.Pos.Motion.Cross(randomVector).Normalize() * entity.Pos.Motion.Length()).ToVec3f() * VelocityFactor;
     }
 
     protected virtual IParticlePropertiesProvider GetShockwaveParticleProps(Vec3f velocity) {

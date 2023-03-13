@@ -77,5 +77,40 @@ namespace Yeet {
       Max = 100f,
       Description = "Furthest distance at which the grunting of a yeeting player can be heard."
     };
+
+    [JsonProperty, JsonConverter(typeof(SettingConverter<int>))]
+    public Setting<int> MaxShockwaveRingsToSpawn { get; set; } = new Setting<int> {
+      Default = 3,
+      Min = 0,
+      Description = "Maximum number of shockwave particle rings to spawn per yeeted item."
+    };
+
+    [JsonProperty, JsonConverter(typeof(SettingConverter<int>))]
+    public Setting<int> MinTimeBetweenRingsMillis { get; set; } = new Setting<int> {
+      Default = 250,
+      Min = 0,
+      Description = "Minimum milliseconds to wait before spawning a shockwave particle ring."
+    };
+
+    [JsonProperty, JsonConverter(typeof(SettingConverter<int>))]
+    public Setting<int> MaxTimeBetweenRingsMillis { get; set; } = new Setting<int> {
+      Default = 500,
+      Min = 0,
+      Description = "Maximum milliseconds to wait before spawning a shockwave particle ring."
+    };
+
+    [JsonProperty, JsonConverter(typeof(SettingConverter<int>))]
+    public Setting<int> ParticlesPerRing { get; set; } = new Setting<int> {
+      Default = 20,
+      Min = 0,
+      Description = "Number of particles to spawn per shockwave."
+    };
+
+    [JsonProperty, JsonConverter(typeof(SettingConverter<float>))]
+    public Setting<float> ShockwaveVelocityFactor { get; set; } = new Setting<float> {
+      Default = 3.0f,
+      Min = 1.0f,
+      Description = "Velocity of the shockwave particles compared to the velocity of the yeeted item."
+    };
   }
 }
