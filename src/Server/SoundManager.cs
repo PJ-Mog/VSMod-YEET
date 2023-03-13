@@ -1,26 +1,42 @@
 using Vintagestory.API.Common;
+using Vintagestory.API.Server;
 
 namespace Yeet.Server {
   public class SoundManager {
-    private YeetSystem System;
-    private float GruntAudibleRange => System.Config.GruntAudibleRange;
-    private float GruntVolume => System.Config.GruntVolume;
-    private float WooshAudibleRange => System.Config.WooshAudibleRange;
-    private float WooshVolume => System.Config.WooshVolume;
+    protected YeetSystem System { get; }
+    protected float GruntAudibleRange { get; set; }
+    protected float GruntVolume { get; set; }
+    protected float WooshAudibleRange { get; set; }
+    protected float WooshVolume { get; set; }
 
     public SoundManager(YeetSystem system) {
       if (system.Side != EnumAppSide.Server) {
         return;
       }
       System = system;
-      System.Event.ItemYeeted += OnItemYeeted;
+
+      LoadServerSettings(system.ServerAPI);
+
+      System.Event.OnAfterServerHandledEvent += OnAfterServerHandledEvent;
     }
 
-    private void OnItemYeeted(IPlayer yeeter) {
-      StrongYeet(yeeter);
+    protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
+      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
+      GruntAudibleRange = serverSettings.GruntAudibleRange.Value;
+      GruntVolume = serverSettings.GruntVolume.Value;
+      WooshAudibleRange = serverSettings.WooshAudibleRange.Value;
+      WooshVolume = serverSettings.WooshVolume.Value;
     }
 
-    public void StrongYeet(IPlayer yeeter) {
+    protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful) {
+        return;
+      }
+
+      StrongYeet(eventArgs.ForPlayer);
+    }
+
+    protected virtual void StrongYeet(IPlayer yeeter) {
       System.Api.World.PlaySoundAt(new AssetLocation("game:sounds/player/strike"),
                                          atEntity: yeeter.Entity,
                                          randomizePitch: true,

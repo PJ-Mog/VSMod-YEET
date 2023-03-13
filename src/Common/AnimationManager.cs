@@ -1,56 +1,111 @@
-using Yeet.Common.Network;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.API.Server;
 
 namespace Yeet.Common {
   public class AnimationManager {
-    private YeetSystem System;
+    protected YeetSystem System { get; }
+    protected float ScreenShakeIntensity { get; set; }
+    protected bool ShouldSpawnShockwaves { get; set; }
 
     public AnimationManager(YeetSystem system) {
       System = system;
 
-      System.Event.ClientRequestedYeet += OnClientRequestedYeet;
-      System.Event.YeetRequestReceived += OnYeetRequestReceived;
-      System.Event.YeetCanceled += OnYeetCanceled;
-      System.Event.ItemYeeted += OnItemYeeted;
-    }
+      System.Event.OnAfterInput += OnAfterInput;
+      System.Event.OnServerReceivedYeetEvent += OnServerReceivedYeetEvent;
+      System.Event.OnAfterServerHandledEvent += OnAfterServerHandledEvent;
+      System.Event.OnClientReceivedYeetEvent += OnClientReceivedYeetEvent;
 
-    private void OnClientRequestedYeet(IClientPlayer yeeter, EnumYeetType type, EnumYeetSlotType slot, double force) {
-      StartWindup(yeeter.Entity);
-    }
-
-    private void OnYeetRequestReceived(IServerPlayer yeeter, YeetPacket yeetData) {
-      StartWindup(yeeter.Entity);
-    }
-
-    private void OnYeetCanceled(IPlayer yeeter, string errorCode) {
-      StopWindup(yeeter.Entity);
-    }
-
-    private void OnItemYeeted(IPlayer yeeter) {
-      ShakeScreen();
-      StopWindup(yeeter.Entity);
-      StrongYeet(yeeter.Entity);
-    }
-
-    public void ShakeScreen() {
-      if (System.Side == EnumAppSide.Client
-          && System.Config.ScreenShakeIntensity > 0f
-          && System.ClientAPI.World.Player.CameraMode == EnumCameraMode.FirstPerson) {
-        System.ClientAPI.World.SetCameraShake(System.Config.ScreenShakeIntensity);
+      if (system.Api is ICoreClientAPI capi) {
+        LoadClientSettings(capi);
+      }
+      else {
+        LoadServerSettings(system.Api as ICoreServerAPI);
       }
     }
 
-    public void StartWindup(EntityPlayer yeeter) {
+    protected virtual void LoadClientSettings(ICoreClientAPI capi) {
+      var clientSettings = capi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ClientSettings ?? new ClientConfig();
+      ScreenShakeIntensity = clientSettings.ScreenShakeIntensity.Value;
+    }
+
+    protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
+      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
+
+      SpawnShockwavesEntityBehavior.MaxRingsToSpawn = serverSettings.MaxShockwaveRingsToSpawn.Value;
+      SpawnShockwavesEntityBehavior.MinTimeBetweenRingsMillis = serverSettings.MinTimeBetweenRingsMillis.Value;
+      SpawnShockwavesEntityBehavior.MaxTimeBetweenRingsMillis = serverSettings.MaxTimeBetweenRingsMillis.Value;
+      SpawnShockwavesEntityBehavior.ParticlesPerRing = serverSettings.ParticlesPerRing.Value;
+      SpawnShockwavesEntityBehavior.VelocityFactor = serverSettings.ShockwaveVelocityFactor.Value;
+
+      ShouldSpawnShockwaves = SpawnShockwavesEntityBehavior.MaxRingsToSpawn > 0 && SpawnShockwavesEntityBehavior.ParticlesPerRing > 0;
+    }
+
+    protected virtual void OnAfterInput(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful) {
+        return;
+      }
+
+      StartWindup(System.ClientAPI.World.Player.Entity);
+    }
+
+    protected virtual void OnServerReceivedYeetEvent(YeetEventArgs eventArgs) {
+      StartWindup(eventArgs.ForPlayer.Entity);
+    }
+
+    protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful || eventArgs.YeetedEntityItem == null) {
+        return;
+      }
+
+      if (!ShouldSpawnShockwaves) {
+        return;
+      }
+
+      eventArgs.YeetedEntityItem.AddBehavior(SpawnShockwavesEntityBehavior.Create(eventArgs.YeetedEntityItem));
+    }
+
+    protected virtual void OnClientReceivedYeetEvent(YeetEventArgs eventArgs) {
+      if (!eventArgs.Successful) {
+        OnFailedYeet(System.ClientAPI?.World.Player);
+        return;
+      }
+
+      OnSuccessfulYeet(eventArgs);
+    }
+
+    protected virtual void OnFailedYeet(IPlayer yeeter) {
+      StopWindup(yeeter.Entity);
+    }
+
+    protected virtual void OnSuccessfulYeet(YeetEventArgs eventArgs) {
+      ShakeScreen();
+      var playerEntity = System.ClientAPI.World.Player.Entity;
+      StopWindup(playerEntity);
+      StrongYeet(playerEntity);
+    }
+
+    protected virtual void ShakeScreen() {
+      if (ShouldShakeScreen()) {
+        System.ClientAPI.World.SetCameraShake(ScreenShakeIntensity);
+      }
+    }
+
+    protected virtual bool ShouldShakeScreen() {
+      return System.Side == EnumAppSide.Client
+             && ScreenShakeIntensity > 0f
+             && System.ClientAPI.World.Player.CameraMode == EnumCameraMode.FirstPerson;
+    }
+
+    protected virtual void StartWindup(EntityPlayer yeeter) {
       yeeter.StartAnimation("aim");
     }
 
-    public void StopWindup(EntityPlayer yeeter) {
+    protected virtual void StopWindup(EntityPlayer yeeter) {
       yeeter.StopAnimation("aim");
     }
 
-    public void StrongYeet(EntityPlayer yeeter) {
+    protected virtual void StrongYeet(EntityPlayer yeeter) {
       yeeter.StartAnimation("throw"); // resets automatically
       yeeter.StartAnimation("sneakidle");
       System.Api.World.RegisterCallback((float dt) => { yeeter.StopAnimation("sneakidle"); }, 600);
