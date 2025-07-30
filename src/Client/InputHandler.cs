@@ -132,7 +132,7 @@ namespace Yeet.Client {
 
     protected virtual Vec3d GetYeetVelocity() {
       var yaw = Player.CameraMode == EnumCameraMode.Overhead ? Player.Entity.BodyYaw : Player.Entity.Pos.Yaw;
-      var theta = GameMath.PIHALF + yaw;
+      var theta = yaw;
       return new Vec3d(YeetForce * Constants.SIN_PHI * GameMath.FastSin(theta),
                        YeetForce * Constants.COS_PHI,
                        YeetForce * Constants.SIN_PHI * GameMath.FastCos(theta));
