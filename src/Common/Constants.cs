@@ -4,7 +4,7 @@ using Vintagestory.API.MathTools;
 namespace Yeet.Common {
   public static class Constants {
     public const string MOD_ID = "yeet";
-    public const GlKeys DEFAULT_YEET_KEY = GlKeys.Y;
+    public const GlKeys DEFAULT_YEET_KEY = GlKeys.BracketLeft;
     public const string YEET_ONE_CODE = "yeetit";
     public const string YEET_ONE_DESC = "Hard throw item";
     public const string YEET_ALL_CODE = "yeetthem";
