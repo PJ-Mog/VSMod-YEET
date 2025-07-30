@@ -1,0 +1,112 @@
+{
+  "PlayStyles": [],
+  "WorldConfigAttributes": [
+    {
+      "Code": "yeet-SatietyCost",
+      "Category": "yeet",
+      "DataType": "DoubleInput",
+      "Default": 5.0,
+      "Min": 0.0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-Force",
+      "Category": "yeet",
+      "DataType": "DoubleInput",
+      "Default": 0.9,
+      "Min": 0.5,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-WooshVolume",
+      "Category": "yeet",
+      "DataType": "DoubleRange",
+      "Default": 10.0,
+      "Min": 1.0,
+      "Max": 20.0,
+      "Step": 1.0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-WooshAudibleRange",
+      "Category": "yeet",
+      "DataType": "DoubleRange",
+      "Default": 15.0,
+      "Min": 1.0,
+      "Max": 50.0,
+      "Step": 1.0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-GruntVolume",
+      "Category": "yeet",
+      "DataType": "DoubleRange",
+      "Default": 15.0,
+      "Min": 1.0,
+      "Max": 25.0,
+      "Step": 1.0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-GruntAudibleRange",
+      "Category": "yeet",
+      "DataType": "DoubleRange",
+      "Default": 50.0,
+      "Min": 1.0,
+      "Max": 100.0,
+      "Step": 1.0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-MaxShockwaveRingsToSpawn",
+      "Category": "yeet",
+      "DataType": "IntInput",
+      "Default": 3,
+      "Min": 0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-MinDelayBetweenRingsMillis",
+      "Category": "yeet",
+      "DataType": "IntInput",
+      "Default": 250,
+      "Min": 0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-MaxDelayBetweenRingsMillis",
+      "Category": "yeet",
+      "DataType": "IntInput",
+      "Default": 500,
+      "Min": 0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-ParticlesPerRing",
+      "Category": "yeet",
+      "DataType": "IntInput",
+      "Default": 20,
+      "Min": 0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    },
+    {
+      "Code": "yeet-ShockwaveVelocityFactor",
+      "Category": "yeet",
+      "DataType": "DoubleInput",
+      "Default": 3.0,
+      "Min": 1.0,
+      "OnCustomizeScreen": true,
+      "OnlyDuringWorldCreate": false
+    }
+  ]
+}

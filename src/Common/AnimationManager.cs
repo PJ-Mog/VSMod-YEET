@@ -30,13 +30,11 @@ namespace Yeet.Common {
     }
 
     protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
-      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
-
-      SpawnShockwavesEntityBehavior.MaxRingsToSpawn = serverSettings.MaxShockwaveRingsToSpawn.Value;
-      SpawnShockwavesEntityBehavior.MinTimeBetweenRingsMillis = serverSettings.MinTimeBetweenRingsMillis.Value;
-      SpawnShockwavesEntityBehavior.MaxTimeBetweenRingsMillis = serverSettings.MaxTimeBetweenRingsMillis.Value;
-      SpawnShockwavesEntityBehavior.ParticlesPerRing = serverSettings.ParticlesPerRing.Value;
-      SpawnShockwavesEntityBehavior.VelocityFactor = serverSettings.ShockwaveVelocityFactor.Value;
+      SpawnShockwavesEntityBehavior.MaxRingsToSpawn = sapi.World.Config.GetInt("yeet-MaxRingsToSpawn", 3);
+      SpawnShockwavesEntityBehavior.MinDelayBetweenRingsMillis = sapi.World.Config.GetInt("yeet-MinDelayBetweenRingsMillis", 250);
+      SpawnShockwavesEntityBehavior.MaxDelayBetweenRingsMillis = sapi.World.Config.GetInt("yeet-MaxDelayBetweenRingsMillis", 500);
+      SpawnShockwavesEntityBehavior.ParticlesPerRing = sapi.World.Config.GetInt("yeet-ParticlesPerRing", 20);
+      SpawnShockwavesEntityBehavior.VelocityFactor = sapi.World.Config.GetFloat("yeet-VelocityFactor", 3.0f);
 
       ShouldSpawnShockwaves = SpawnShockwavesEntityBehavior.MaxRingsToSpawn > 0 && SpawnShockwavesEntityBehavior.ParticlesPerRing > 0;
     }

@@ -6,7 +6,7 @@ using Yeet.Common;
 namespace Yeet.Server {
   public class YeetHandler {
     protected YeetSystem System { get; }
-    protected float SaturationCostPerYeet { get; set; }
+    protected float SatietyCostPerYeet { get; set; }
 
     public YeetHandler(YeetSystem system) {
       if (system.Side != EnumAppSide.Server) {
@@ -21,9 +21,7 @@ namespace Yeet.Server {
     }
 
     protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
-      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
-
-      SaturationCostPerYeet = serverSettings.SaturationCostPerYeet.Value;
+      SatietyCostPerYeet = sapi.World.Config.GetFloat("yeet-SatietyCost", 5.0f);
     }
 
     protected virtual void OnServerReceivedYeetEvent(YeetEventArgs eventArgs) {
@@ -69,7 +67,7 @@ namespace Yeet.Server {
     }
 
     protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {
-      eventArgs.ForPlayer.Entity.GetBehavior<EntityBehaviorHunger>()?.ConsumeSaturation(SaturationCostPerYeet);
+      eventArgs.ForPlayer.Entity.GetBehavior<EntityBehaviorHunger>()?.ConsumeSaturation(SatietyCostPerYeet);
     }
   }
 }

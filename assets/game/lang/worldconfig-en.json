@@ -1,0 +1,20 @@
+{
+  "worldconfig-category-yeet": "YEET",
+  "worldattribute-yeet-SatietyCost": "The amount of satiety lost when yeeting.",
+  "worldattribute-yeet-Force": "The force of the yeet.",
+  "worldattribute-yeet-WooshVolume": "Volume of the 'woosh' noise when an item is yeeted.",
+  "worldattribute-yeet-WooshVolume-unit": "{0}",
+  "worldattribute-yeet-WooshAudibleRange": "Furthest distance at which the 'woosh' noise can be heard.",
+  "worldattribute-yeet-WooshAudibleRange-unit": "{0} block(s)",
+  "worldattribute-yeet-GruntVolume": "Volume of the player's grunting when yeeting.",
+  "worldattribute-yeet-GruntVolume-unit": "{0}",
+  "worldattribute-yeet-GruntAudibleRange": "Furthest distance at which the grunting of a yeeting player can be heard.",
+  "worldattribute-yeet-GruntAudibleRange-unit": "{0} block(s)",
+  "worldattribute-yeet-MaxShockwaveRingsToSpawn": "Maximum number of shockwave particle rings to spawn per yeeted item.",
+  "worldattribute-yeet-MinDelayBetweenRingsMillis": "Minimum milliseconds to wait before spawning a shockwave particle ring.",
+  "worldattribute-yeet-MinDelayBetweenRingsMillis-unit": "{0} milliseconds",
+  "worldattribute-yeet-MaxDelayBetweenRingsMillis": "Maximum milliseconds to wait before spawning a shockwave particle ring.",
+  "worldattribute-yeet-MaxDelayBetweenRingsMillis-unit": "{0} milliseconds",
+  "worldattribute-yeet-ParticlesPerRing": "Number of particles to spawn per shockwave.",
+  "worldattribute-yeet-ShockwaveVelocityFactor": "Velocity of the shockwave particles compared to the velocity of the yeeted item."
+}

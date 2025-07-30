@@ -21,11 +21,10 @@ namespace Yeet.Server {
     }
 
     protected virtual void LoadServerSettings(ICoreServerAPI sapi) {
-      var serverSettings = sapi.ModLoader.GetModSystem<YeetConfigurationSystem>()?.ServerSettings ?? new ServerConfig();
-      GruntAudibleRange = serverSettings.GruntAudibleRange.Value;
-      GruntVolume = serverSettings.GruntVolume.Value;
-      WooshAudibleRange = serverSettings.WooshAudibleRange.Value;
-      WooshVolume = serverSettings.WooshVolume.Value;
+      GruntAudibleRange = sapi.World.Config.GetFloat("yeet-GruntAudibleRange", 50.0f);
+      GruntVolume = sapi.World.Config.GetFloat("yeet-GruntVolume", 15.0f);
+      WooshAudibleRange = sapi.World.Config.GetFloat("yeet-WooshAudibleRange", 15.0f);
+      WooshVolume = sapi.World.Config.GetFloat("yeet-WooshVolume", 10.0f);
     }
 
     protected virtual void OnAfterServerHandledEvent(YeetEventArgs eventArgs) {

@@ -7,14 +7,14 @@ namespace Yeet.Client {
   public class InputHandler {
     protected YeetSystem System { get; }
     protected bool IsMouseSlotYeetEnabled { get; set; }
-    protected float SaturationRequired { get; set; }
+    protected float SatietyCost { get; set; }
     protected double YeetForce { get; set; }
 
     protected IClientPlayer Player => System.ClientAPI.World.Player;
     protected bool IsMouseItemSlotEmpty => Player.InventoryManager.MouseItemSlot.Empty;
     protected bool IsActiveHotbarSlotEmpty => Player.InventoryManager.ActiveHotbarSlot.Empty;
-    // Current saturation does not utilize EntityBehaviorHunger because that behavior is server-side only
-    protected float CurrentSaturation => Player.Entity.WatchedAttributes.GetTreeAttribute("hunger")?.TryGetFloat("currentsaturation") ?? SaturationRequired;
+    // Current saturation(sic) does not utilize EntityBehaviorHunger because that behavior is server-side only
+    protected float CurrentSatiety => Player.Entity.WatchedAttributes.GetTreeAttribute("hunger")?.TryGetFloat("currentsaturation") ?? SatietyCost;
 
     public InputHandler(YeetSystem system) {
       if (system?.Side != EnumAppSide.Client) {
@@ -31,22 +31,8 @@ namespace Yeet.Client {
     }
 
     protected virtual void LoadServerSettings(ICoreAPI api) {
-      var configSystem = api.ModLoader.GetModSystem<YeetConfigurationSystem>();
-      if (configSystem == null) {
-        api.Logger.Error("[{0}] {1} was not loaded. Using defaults.", nameof(InputHandler), nameof(YeetConfigurationSystem));
-        LoadServerSettings(new ServerConfig());
-        return;
-      }
-
-      configSystem.ServerSettingsReceived += LoadServerSettings;
-      if (configSystem.ServerSettings != null) {
-        LoadServerSettings(configSystem.ServerSettings);
-      }
-    }
-
-    protected virtual void LoadServerSettings(ServerConfig serverSettings) {
-      SaturationRequired = serverSettings.SaturationCostPerYeet.Value;
-      YeetForce = serverSettings.YeetForce.Value;
+      SatietyCost = api.World.Config.GetFloat("yeet-SatietyCost", 5.0f);
+      YeetForce = api.World.Config.GetFloat("yeet-Force", 0.9f);
     }
 
     protected virtual void LoadClientSettings(ICoreAPI api) {
@@ -83,16 +69,16 @@ namespace Yeet.Client {
     }
 
     protected virtual bool CanYeet(YeetEventArgs eventArgs) {
-      return HasEnoughSaturation(eventArgs)
+      return HasEnoughSatiety(eventArgs)
              && HasSomethingToYeet(eventArgs);
     }
 
-    protected virtual bool HasEnoughSaturation(YeetEventArgs eventArgs) {
-      if (SaturationRequired == 0f) {
+    protected virtual bool HasEnoughSatiety(YeetEventArgs eventArgs) {
+      if (SatietyCost == 0f) {
         return true;
       }
 
-      if (CurrentSaturation < SaturationRequired) {
+      if (CurrentSatiety < SatietyCost) {
         eventArgs.ErrorCode = Constants.ERROR_HUNGER;
         return false;
       }

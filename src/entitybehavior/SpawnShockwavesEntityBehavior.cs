@@ -5,8 +5,8 @@ using Vintagestory.API.MathTools;
 namespace Yeet {
   public class SpawnShockwavesEntityBehavior : EntityBehavior {
     internal static int MaxRingsToSpawn { get; set; } = 3;
-    internal static int MinTimeBetweenRingsMillis { get; set; } = 250;
-    internal static int MaxTimeBetweenRingsMillis { get; set; } = 500;
+    internal static int MinDelayBetweenRingsMillis { get; set; } = 250;
+    internal static int MaxDelayBetweenRingsMillis { get; set; } = 500;
     internal static int ParticlesPerRing { get; set; } = 20;
     internal static float VelocityFactor { get; set; } = 3f;
 
@@ -17,7 +17,7 @@ namespace Yeet {
     public static SpawnShockwavesEntityBehavior Create(EntityItem entityItem) {
       var behavior = new SpawnShockwavesEntityBehavior(entityItem);
       behavior.active = true;
-      behavior.spawnNextRingAt = entityItem.World.ElapsedMilliseconds + entityItem.World.Rand.Next(MinTimeBetweenRingsMillis, MaxTimeBetweenRingsMillis);
+      behavior.spawnNextRingAt = entityItem.World.ElapsedMilliseconds + entityItem.World.Rand.Next(MinDelayBetweenRingsMillis, MaxDelayBetweenRingsMillis);
       return behavior;
     }
 
@@ -55,7 +55,7 @@ namespace Yeet {
         return;
       }
 
-      spawnNextRingAt = entity.World.ElapsedMilliseconds + entity.World.Rand.Next(MinTimeBetweenRingsMillis, MaxTimeBetweenRingsMillis);
+      spawnNextRingAt = entity.World.ElapsedMilliseconds + entity.World.Rand.Next(MinDelayBetweenRingsMillis, MaxDelayBetweenRingsMillis);
     }
 
     protected void SpawnShockwaveRing() {
